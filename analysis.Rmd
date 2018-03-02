@@ -1,0 +1,119 @@
+---
+title: "analysis"
+author: "Saras Windecker"
+date: "22/02/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(parallel)
+library(plyr)
+library(foreach)
+library(doMC)
+library(rstan)
+```
+
+
+```{r data}
+n <- read.table('munge/inundated_data.txt', header = TRUE)
+n$species_code <- as.character(n$species_code)
+
+traits <- c('N', 'C', 'SLA', 'LDMC', 'HC', 'CL', 'LG')
+model_df <- data.frame(model_type = c('w', 'w', 'ne'),
+                       fixed_effects = c(TRUE, FALSE, FALSE),
+                       random_effects = c(FALSE, TRUE, FALSE),
+                       cv = c(TRUE, TRUE, TRUE))
+```
+
+```{r simulate data to check each model}
+
+set.seed(123)
+
+## the 
+# i <- rnorm(1008, 4111, 176)
+# t <- rep(seq(0, 0.7, .0056), 8)
+# int_a <- -0.4
+# int_b <- -0.4
+# a <- exp(int_a)
+# b <- exp(int_b)
+# mean <- i * exp((-t/b)^a)
+
+
+
+
+
+
+
+
+i <- rnorm(1008, 8.32, .05)
+t <- rep(seq(0, 0.7, .0056), 8)
+int_a <- -0.4
+int_b <- -0.1
+a <- exp(int_a)
+b <- exp(int_b)
+
+mean <- i - ((t/b)^a)
+plot(t, mean, ylim= c(0, max(mean)))
+
+sim <- data.frame(t = t, i = i, mean = mean)
+
+model_df <- data.frame(model_type = c('w'),
+                       fixed_effects = c(FALSE),
+                       random_effects = c(FALSE),
+                       cv = c(FALSE))
+
+source('R/create_jobs.R')
+source('R/append_data.R')
+source('R/expand_models.R')
+source('R/run_stan_models.R')
+jobs_list <- create_jobs(model_df, sim,
+                         folder = 'output/stan/')
+
+debugonce(run_stan_models)
+foreach(i = length(jobs_list)) %dopar% {
+  run_stan_models(jobs_list[[i]], 
+                  mass = 'mean',
+                  initial_mass = 'i',
+                  time = 't',
+                  group_id = NULL, 
+                  compile_model = TRUE)
+}
+
+```
+
+```{r}
+jobs_list <- create_jobs(model_df, n,
+                         folder = 'output/stan/',
+                         cv_cluster = 'species_code',
+                         fixed_effects_list = traits)
+
+
+
+
+all_stan_groups <- NULL
+
+get_stan_group <- function (x) {
+  g <- x$stan_group
+  c(g, all_stan_groups)
+}
+
+all <- unlist(lapply(jobs_list, get_stan_group))
+
+to_compile <- tapply(seq_along(all), all, identity)[unique(all)] %>%
+  lapply(., head, 1) %>%
+  unlist(.)
+
+# set number of cores
+registerDoMC(10)
+
+# run jobs that are first of their kind, fully compiling models
+foreach(i = to_compile) %dopar% {
+  run_stan_models(jobs_list[[i]], 'mRem', 'mInit', 't', 'species_code', compile_model = TRUE)
+}
+
+# run all jobs using compiled models as pre-fits
+foreach(i = length(jobs_list)) %dopar% {
+  run_stan_models(jobs_list[[i]], 'mRem', 'mInit', 't', 'species_code', compile_model = FALSE)
+}
+```
+
