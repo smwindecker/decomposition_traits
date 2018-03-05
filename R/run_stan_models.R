@@ -134,7 +134,8 @@ run_stan_models <- function (job, mass, initial_mass, time, group_id = NULL, com
     cv_output <- stan(file = paste0('R/stan_', model_type, '_', cv, '_', re, '.stan'),
                       data = stan_data,
                       iter = 2000,
-                      chains = 3)
+                      chains = 3,
+                      control = list(adapt_delta = 0.99, max_treedepth = 15))
 
     saveRDS(cv_output, paste0('output/stan/', model_type, '_', cv, '_', re, '.rds'))
 
