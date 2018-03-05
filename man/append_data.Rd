@@ -4,14 +4,14 @@
 \alias{append_data}
 \title{Append data subsets to job list}
 \usage{
-append_data(input, data)
+append_data(input, data, cv_cluster)
 }
 \arguments{
 \item{input}{job list}
 
 \item{data}{data you will subset}
 
-\item{fold_id}{list item that corresponds to what to divide the test and training data by}
+\item{cv_cluster}{data column that the data will be divided on}
 }
 \value{
 list of jobs with subsetted data appended
