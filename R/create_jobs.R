@@ -95,7 +95,9 @@ create_jobs <- function(model_structures, data, folder, cv_cluster = NULL, fixed
   jobs <- unlist(jobs, recursive = FALSE)
 
   # append correct data to each job in list
-  lapply(jobs, append_data, data)
+  data_appended <- lapply(jobs, append_data, data, cv_cluster)
+
+  data_appended
 
 }
 
