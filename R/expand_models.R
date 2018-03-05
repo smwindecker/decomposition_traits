@@ -11,6 +11,7 @@ expand_models <- function(input, cluster, folder) {
     # repeat each model n = number of species times
     expand <- expand.grid(cv_cluster = cluster,
                           model = input$model)
+    expand$model <- as.character(expand$model)
 
     # merge with formula dataframe so also have the parameter functions listed
     job <- merge(expand, input, by = 'model')
