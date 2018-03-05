@@ -46,13 +46,13 @@ model {
 generated quantities {
 
   vector[N] mT_fit;
-  real k_fit[J];
 
   {
   real k_ln_fit[J];
+  real k_fit[J];
 
   for (j in 1:J) {
-    k_ln_fit[j] = a[j];
+    k_ln_fit[j] = 0;
 
     for (p in 1:P) {
       k_ln_fit[j] = k_ln_fit[j] + b[p] * X_k[j, p];
@@ -62,7 +62,7 @@ generated quantities {
   }
 
   for (i in 1:N) {
-    mT_fit[i] = normal_rng(m0 - (k_fit[sp[i]] * time), sigma_obs);
+    mT_fit[i] = normal_rng(m0[i] - (k_fit[sp[i]] * time[i]), sigma_obs);
   }
 
   }

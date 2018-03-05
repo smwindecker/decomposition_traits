@@ -31,6 +31,7 @@ model {
 
   // likelihood
   for (j in 1:J) {
+
     k_ln[j] = a[j];
 
     for (p in 1:P) {
@@ -50,10 +51,10 @@ model {
 generated quantities {
 
   vector[N] mT_fit;
-  real k_fit[J];
 
   {
   real k_ln_fit[J];
+  real k_fit[J];
 
   for (j in 1:J) {
     k_ln_fit[j] = a[j];

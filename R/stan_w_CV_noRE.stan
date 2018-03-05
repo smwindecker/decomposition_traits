@@ -25,78 +25,77 @@ parameters {
 }
 
 model {
-  
+
   real alpha[J];
   real alpha_ln[J];
   real beta[J];
   real beta_ln[J];
   vector[N] mu;
-  
+
   // priors
   sigma_obs ~ normal(0, 2);
   b_alpha ~ normal(0, 2);
   b_beta ~ normal(0, 2);
-  
+
   // likelihood
   for (j in 1:J) {
     alpha_ln[j] = 0;
-    
+
     for (p in 1:P_alpha) {
       alpha_ln[j] = alpha_ln[j] + b_alpha[p] * X_alpha[j, p];
     }
-    
+
     alpha[j] = exp(alpha_ln[j]);
-    
+
     beta_ln[j] = 0;
-    
+
     for (p in 1:P_beta) {
       beta_ln[j] = beta_ln[j] + b_beta[p] * X_beta[j, p];
     }
-    
+
     beta[j] = exp(beta_ln[j]);
   }
 
   for (i in 1:N) {
     mu[i] = m0[i] - (time[i] / beta[sp[i]])^alpha[sp[i]];
   }
-  
+
   mT ~ normal(mu, sigma_obs);
 }
 
 generated quantities {
-  
+
   real neg_loglik;
+  vector[N_test] mT_pred;
 
   {
   real alpha_pred;
   real alpha_ln_pred;
   real beta_pred;
   real beta_ln_pred;
-  
-  vector[N_test] mT_pred;
   vector[N_test] loglik;
-  
+
   alpha_ln_pred = 0;
-    
+
   for (p in 1:P_alpha) {
     alpha_ln_pred = alpha_ln_pred + b_alpha[p] * X_alpha_test[1, p];
   }
-  
+
   alpha_pred = exp(alpha_ln_pred);
-  
+
   beta_ln_pred = 0;
-  
+
   for (p in 1:P_beta) {
     beta_ln_pred = beta_ln_pred + b_beta[p] * X_beta_test[1, p];
   }
-  
-  beta_pred = exp(beta_ln_pred); 
-  
+
+  beta_pred = exp(beta_ln_pred);
+
   for (i in 1:N_test) {
     mT_pred[i] = normal_rng(m0_test[i] - (time_test[i] / beta_pred)^alpha_pred, sigma_obs);
     loglik[i] = normal_lpdf(mT_test[i] | m0_test[i] - (time_test[i] / beta_pred)^alpha_pred, sigma_obs);
   }
-  
+
   neg_loglik = -1 * sum(loglik);
 
   }

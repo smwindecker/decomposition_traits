@@ -55,12 +55,11 @@ model {
 generated quantities {
 
   real neg_loglik;
+  vector[N_test] mT_pred;
 
   {
   real k_pred;
   real k_ln_pred;
-
-  vector[N_test] mT_pred;
   vector[N_test] loglik;
 
   k_ln_pred = 0;
