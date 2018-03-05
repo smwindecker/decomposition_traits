@@ -3,6 +3,8 @@
 export(append_data)
 export(create_jobs)
 export(expand_models)
+export(extract_output)
 export(run_stan_models)
 import(Formula)
+import(reshape2)
 import(rstan)
