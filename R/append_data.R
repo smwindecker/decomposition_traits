@@ -2,12 +2,12 @@
 #'
 #' @param input job list
 #' @param data data you will subset
-#' @param fold_id list item that corresponds to what to divide the test and training data by
+#' @param cv_cluster data column that the data will be divided on
 #' @return list of jobs with subsetted data appended
 #'
 #' @export
 
-append_data <- function(input, data) {
+append_data <- function(input, data, cv_cluster) {
 
   list <- as.list(unlist(input[1,]))
 
@@ -16,10 +16,10 @@ append_data <- function(input, data) {
     fold <- list$cv_cluster
 
     # specify training data and append to list item called 'train'
-    list[['train']] <- data[data$species_code != fold, ]
+    list[['train']] <- data[data[, cv_cluster] != fold, ]
 
     # specify test data and append to list item called 'test'
-    list[['test']] <- data[data$species_code == fold, ]
+    list[['test']] <- data[data[, cv_cluster] == fold, ]
 
   }
 
