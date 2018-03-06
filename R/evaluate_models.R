@@ -1,8 +1,8 @@
-#' Select models to compile and compile them
+#' Evaulate the contents of the model outputs
 #'
 #' @param output_list list of output of run_models
 #' @param predR2_path file path for where to save pred v. real test data plot
-#' @return list with deviance per model type and not converged models
+#' @return list with deviance per model type and unconverged models
 #' @import dplyr
 #'
 #' @export

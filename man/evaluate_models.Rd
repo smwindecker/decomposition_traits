@@ -2,7 +2,7 @@
 % Please edit documentation in R/evaluate_models.R
 \name{evaluate_models}
 \alias{evaluate_models}
-\title{Select models to compile and compile them}
+\title{Evaulate the contents of the model outputs}
 \usage{
 evaluate_models(output_list, predR2_path)
 }
@@ -12,8 +12,8 @@ evaluate_models(output_list, predR2_path)
 \item{predR2_path}{file path for where to save pred v. real test data plot}
 }
 \value{
-list with deviance per model type and not converged models
+list with deviance per model type and unconverged models
 }
 \description{
-Select models to compile and compile them
+Evaulate the contents of the model outputs
 }
