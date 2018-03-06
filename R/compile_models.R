@@ -6,7 +6,6 @@
 #' @param time column name in data referring to time in years
 #' @param group_id column name in data referring to random effects cluster
 #' @return saves compiled models in previously specified output folder
-#' @import reshape2
 #'
 #' @export
 
