@@ -7,7 +7,7 @@
 #' @param group_id column name in data referring to random effects cluster
 #' @param compile_model whether to fully compile model or not
 #' @return stan output, and saved .rds file
-#' @import rstan Formula
+#' @import rstan
 #' @export
 
 execute_stan <- function (job, mass, initial_mass, time, group_id = NULL, compile_model = TRUE) {
@@ -131,11 +131,11 @@ execute_stan <- function (job, mass, initial_mass, time, group_id = NULL, compil
   if (compile_model == TRUE) {
 
     # run stan model
-    cv_output <- stan(file = paste0('R/stan_', model_type, '_', cv, '_', re, '.stan'),
-                      data = stan_data,
-                      iter = 2000,
-                      chains = 3,
-                      control = list(adapt_delta = 0.99, max_treedepth = 15))
+    cv_output <- rstan::stan(file = paste0('R/stan_', model_type, '_', cv, '_', re, '.stan'),
+                             data = stan_data,
+                             iter = 2000,
+                             chains = 3,
+                             control = list(adapt_delta = 0.99, max_treedepth = 15))
 
     saveRDS(cv_output, paste0('output/stan/', model_type, '_', cv, '_', re, '.rds'))
 
@@ -143,10 +143,10 @@ execute_stan <- function (job, mass, initial_mass, time, group_id = NULL, compil
 
   if (compile_model == FALSE) {
 
-    cv_output <- stan(fit = readRDS(paste0('output/stan/', model_type, '_', cv, '_', re, '.rds')),
-                      data = stan_data,
-                      iter = 2000,
-                      chains = 3)
+    cv_output <- rstan::stan(fit = readRDS(paste0('output/stan/', model_type, '_', cv, '_', re, '.rds')),
+                             data = stan_data,
+                             iter = 2000,
+                             chains = 3)
 
     # save output as .rds
     saveRDS(cv_output, job$filename)
