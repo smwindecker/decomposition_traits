@@ -7,7 +7,6 @@ Authors@R: person("Saras", "Windecker", role = c("aut", "cre"),
 Description: This package contains the code and analysis steps for S. Windecker's thesis chapter on 
             decomposition of wetland plants. 
 Depends: R (>= 3.4.1)
-Imports:
 License: MIT + file LICENSE
 URL: https://github.com/smwindecker/decay
 Encoding: UTF-8
