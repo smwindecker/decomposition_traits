@@ -2,7 +2,7 @@
 % Please edit documentation in R/run_models.R
 \name{run_models}
 \alias{run_models}
-\title{Expand each cv model to have separate model run per cluster}
+\title{Run the models, using the compiled files}
 \usage{
 run_models(jobs_list, mass, initial_mass, time, group_id)
 }
@@ -21,5 +21,5 @@ run_models(jobs_list, mass, initial_mass, time, group_id)
 list with model type, iteration, neg log likelihood output, predicted and real for test data, and diagnostics
 }
 \description{
-Expand each cv model to have separate model run per cluster
+Run the models, using the compiled files
 }

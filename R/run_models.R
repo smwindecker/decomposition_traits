@@ -1,4 +1,4 @@
-#' Expand each cv model to have separate model run per cluster
+#' Run the models, using the compiled files
 #'
 #' @param jobs_list job list
 #' @param mass column name in data referring to logged mass remaining
