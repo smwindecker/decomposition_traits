@@ -24,7 +24,7 @@ expand_models <- function(input, clusters, folder) {
     job$job_id <- paste0(job$model, '_', job$cv_cluster)
   }
 
-  if (is.null(cluster)) {
+  if (is.null(clusters)) {
     job <- input
     job$job_id <- paste0(job$model, '_noCV')
   }
