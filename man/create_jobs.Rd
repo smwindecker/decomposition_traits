@@ -2,7 +2,7 @@
 % Please edit documentation in R/create_jobs.R
 \name{create_jobs}
 \alias{create_jobs}
-\title{Create design matrix of unique model combinations}
+\title{Create job list of all model iterations to be run}
 \usage{
 create_jobs(model_structures, data, folder, cv_cluster = NULL,
   fixed_effects_list = NULL)
@@ -12,17 +12,17 @@ create_jobs(model_structures, data, folder, cv_cluster = NULL,
 
 \item{data}{dataframe containing data for models}
 
-\item{folder}{folder to save output}
+\item{folder}{folder path to save output}
 
-\item{cv_cluster}{optional specification for grouping of cv clusters}
+\item{cv_cluster}{optional columns name to specify cv clusters}
 
-\item{trait_list}{a list of traits}
+\item{fixed_effects_list}{optional list of fixed effects - corresponding to column names in data}
 }
 \value{
-dataframe of all model structures
+list of all model iterations
 }
 \description{
-Create design matrix of unique model combinations
+Create job list of all model iterations to be run
 }
 \examples{
 traits <- c('N', 'C', 'SLA', 'LDMC', 'HC', 'CL', 'LG')
@@ -30,7 +30,8 @@ model_df <- data.frame(model_type = c('w', 'w', 'ne'),
                        fixed_effects = c(TRUE, FALSE, FALSE),
                        random_effects = c(FALSE, TRUE, FALSE),
                        cv = c(TRUE, TRUE, TRUE))
-jobs_list <- create_jobs(model_df, df,
+jobs_list <- create_jobs(model_structures = model_df,
+                         data = df,
                          folder = 'output/stan/',
                          cv_cluster = 'species_code',
                          fixed_effects_list = traits)

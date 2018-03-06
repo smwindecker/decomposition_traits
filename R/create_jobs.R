@@ -1,18 +1,19 @@
-#' Create design matrix of unique model combinations
+#' Create job list of all model iterations to be run
 #'
 #' @param model_structures dataframe listing model types and specifications
 #' @param data dataframe containing data for models
-#' @param folder folder to save output
-#' @param cv_cluster optional specification for grouping of cv clusters
-#' @param fixed_effects_list a list of traits
-#' @return dataframe of all model structures
+#' @param folder folder path to save output
+#' @param cv_cluster optional columns name to specify cv clusters
+#' @param fixed_effects_list optional list of fixed effects - corresponding to column names in data
+#' @return list of all model iterations
 #' @examples
 #' traits <- c('N', 'C', 'SLA', 'LDMC', 'HC', 'CL', 'LG')
 #' model_df <- data.frame(model_type = c('w', 'w', 'ne'),
 #'                        fixed_effects = c(TRUE, FALSE, FALSE),
 #'                        random_effects = c(FALSE, TRUE, FALSE),
 #'                        cv = c(TRUE, TRUE, TRUE))
-#' jobs_list <- create_jobs(model_df, df,
+#' jobs_list <- create_jobs(model_structures = model_df,
+#'                          data = df,
 #'                          folder = 'output/stan/',
 #'                          cv_cluster = 'species_code',
 #'                          fixed_effects_list = traits)
@@ -36,9 +37,6 @@ create_jobs <- function(model_structures, data, folder, cv_cluster = NULL, fixed
   }
 
   models <- model_structures
-  # models$formula_k <- NA
-  # models$formula_alpha <- NA
-  # models$formula_beta <- NA
 
   if (!is.null(fixed_effects_list)) {
 
@@ -50,17 +48,17 @@ create_jobs <- function(model_structures, data, folder, cv_cluster = NULL, fixed
                              formula_k = formulas,
                              stringsAsFactors = FALSE)
 
-    models <- merge(models, ne_formulas, by = c('model_type', 'fixed_effects'))
+    models <- merge(models, ne_formulas, by = c('model_type', 'fixed_effects'), all.x = TRUE)
 
     formula_grid <- expand.grid(formulas, formulas, stringsAsFactors = FALSE)
-    g <- length(formula_grid)
+    g <- nrow(formula_grid)
     w_formulas <- data.frame(model_type = rep('w', g),
                              fixed_effects = rep('FE', g),
                              formula_alpha = formula_grid[,1],
                              formula_beta = formula_grid[,2],
                              stringsAsFactors = FALSE)
 
-    models <- merge(models, w_formulas, by = c('model_type', 'fixed_effects'))
+    models <- merge(models, w_formulas, by = c('model_type', 'fixed_effects'), all.x = TRUE)
 
   }
 
