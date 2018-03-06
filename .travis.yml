@@ -4,6 +4,10 @@ warnings_are_errors: false
 dist: trusty
 
 r_packages:
+  - Formula
+  - reshape2
+  - dplyr
+  - rstan
   - knitr
   - rmarkdown
   - devtools
