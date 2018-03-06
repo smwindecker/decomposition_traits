@@ -7,6 +7,7 @@
 #' @param group_id column name in data referring to random effects cluster
 #' @return saves compiled models in previously specified output folder
 #' @importFrom foreach foreach %dopar%
+#' @importFrom utils head
 #'
 #' @export
 
@@ -23,7 +24,7 @@ compile_models <- function(jobs_list, mass, initial_mass, time, group_id) {
   all <- unlist(lapply(jobs_list, get_stan_group))
 
   to_compile <- tapply(seq_along(all), all, identity)[unique(all)] %>%
-    lapply(., head, 1) %>%
+    lapply(., utils::head, 1) %>%
     unlist(.)
 
   foreach(i = to_compile) %dopar% {

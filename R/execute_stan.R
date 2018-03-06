@@ -8,7 +8,7 @@
 #' @param compile_model whether to fully compile model or not
 #' @return stan output, and saved .rds file
 #' @import rstan
-#' @importFrom stats model.matrix
+#' @importFrom stats model.matrix as.formula
 #' @export
 
 execute_stan <- function (job, mass, initial_mass, time, group_id = NULL, compile_model = TRUE) {
@@ -47,17 +47,17 @@ execute_stan <- function (job, mass, initial_mass, time, group_id = NULL, compil
 
   # model formulas for each possible model parameter
   if (!is.na(job$formula_k)) {
-    formula_k <- as.formula(job$formula_k)
+    formula_k <- stats::as.formula(job$formula_k)
     X_k <- make_matrix(formula_k)
     X_k_test <- unique(model.matrix(formula_k, test))
   }
   if (!is.na(job$formula_alpha)) {
-    formula_alpha <- as.formula(job$formula_alpha)
+    formula_alpha <- stats::as.formula(job$formula_alpha)
     X_alpha <- make_matrix(formula_alpha)
     X_alpha_test <- unique(model.matrix(formula_alpha, test))
   }
   if (!is.na(job$formula_beta)) {
-    formula_beta <- as.formula(job$formula_beta)
+    formula_beta <- stats::as.formula(job$formula_beta)
     X_beta <- make_matrix(formula_beta)
     X_beta_test <- unique(model.matrix(formula_beta, test))
   }
