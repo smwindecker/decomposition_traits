@@ -25,6 +25,7 @@ list of all model iterations
 Create job list of all model iterations to be run
 }
 \examples{
+\dontrun{
 traits <- c('N', 'C', 'SLA', 'LDMC', 'HC', 'CL', 'LG')
 model_df <- data.frame(model_type = c('w', 'w', 'ne'),
                        fixed_effects = c(TRUE, FALSE, FALSE),
@@ -35,5 +36,6 @@ jobs_list <- create_jobs(model_structures = model_df,
                          folder = 'output/stan/',
                          cv_cluster = 'species_code',
                          fixed_effects_list = traits)
+}
 
 }

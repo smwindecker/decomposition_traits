@@ -8,6 +8,7 @@
 #' @return list of all model iterations
 #' @importFrom utils write.csv
 #' @examples
+#' \dontrun{
 #' traits <- c('N', 'C', 'SLA', 'LDMC', 'HC', 'CL', 'LG')
 #' model_df <- data.frame(model_type = c('w', 'w', 'ne'),
 #'                        fixed_effects = c(TRUE, FALSE, FALSE),
@@ -18,6 +19,7 @@
 #'                          folder = 'output/stan/',
 #'                          cv_cluster = 'species_code',
 #'                          fixed_effects_list = traits)
+#' }
 #'
 #' @export
 
