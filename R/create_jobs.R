@@ -62,6 +62,12 @@ create_jobs <- function(model_structures, data, folder, cv_cluster = NULL, fixed
 
   }
 
+  if (is.null(fixed_effects_list)) {
+    models$formula_k <- NA
+    models$formula_alpha <- NA
+    models$formula_beta <- NA
+  }
+
   # give formulas to non fixed effects models
   models$formula_k[models$model_type == 'ne' & is.na(models$formula_k)] <- '~ 1'
   models$formula_alpha[models$model_type == 'w' & is.na(models$formula_alpha)] <- '~ 1'
