@@ -44,9 +44,9 @@ create_jobs <- function(model_structures, data, folder, cv_cluster = NULL, fixed
     formulas <- c('~ 1', sprintf("%s + %s", '~ 1', fixed_effects_list))
     n <- length(formulas)
     ne_formulas <- data.frame(model_type = rep('ne', n),
-                             fixed_effects = rep('FE', n),
-                             formula_k = formulas,
-                             stringsAsFactors = FALSE)
+                              fixed_effects = rep('FE', n),
+                              formula_k = formulas,
+                              stringsAsFactors = FALSE)
 
     models <- merge(models, ne_formulas, by = c('model_type', 'fixed_effects'), all.x = TRUE)
 
