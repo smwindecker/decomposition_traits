@@ -1,0 +1,18 @@
+sudo: required
+language: r
+warnings_are_errors: false
+dist: trusty
+
+r_packages:
+  - knitr
+  - rmarkdown
+  - devtools
+  - testthat
+  - covr
+
+email:
+  on_success: change
+  on_failure: change
+
+after_success:
+  - Rscript -e 'library(covr); codecov()'
