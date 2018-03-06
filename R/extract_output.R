@@ -7,6 +7,7 @@
 #' @param group_id column name in data referring to random effects cluster
 #' @return list for single model with model type, iteration, neg log likelihood output, predicted and real for test data, and diagnostics
 #' @importFrom reshape2 melt
+#' @importFrom rstan summary
 #'
 #' @export
 
@@ -38,11 +39,11 @@ extract_output <- function(job, mass, initial_mass, time, group_id) {
                           iter = rep(iter, nrow(mT_pred)),
                           data_point = mT_pred$data_point,
                           draw = mT_pred$draw,
-                          mT_real = rep(job$test$log_mean, each = 3000),
+                          mT_real = rep(job$test[, mass], each = nrow(mT_pred) / nrow(job$test)),
                           stringsAsFactors = FALSE)
 
   # diagnostics
-  fit_summary <- summary(fit)$summary
+  fit_summary <- rstan::summary(fit)$summary
   abs_rhat <- max(abs(fit_summary[,'Rhat'] - 1))
   neff_min <- min(fit_summary[,'n_eff'])
   sampler_params <- get_sampler_params(fit, inc_warmup = FALSE)
