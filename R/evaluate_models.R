@@ -21,7 +21,8 @@ evaluate_models <- function(output_list, predR2_path) {
     group_by(model) %>%
     summarise(mn = mean(2*mean),
               lwr = stats::quantile(2*mean, 0.025),
-              upr = stats::quantile(2*mean, 0.975))
+              upr = stats::quantile(2*mean, 0.975)) %>%
+    as.data.frame()
 
   # predictions v. real for all folds of model
   pred <- dplyr::bind_rows(lapply(1:length(output_list), function(x) {
