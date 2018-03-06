@@ -3,7 +3,8 @@
 #' @param output_list list of output of run_models
 #' @param predR2_path file path for where to save pred v. real test data plot
 #' @return list with deviance per model type and unconverged models
-#' @importFrom dplyr bind_rows
+#' @importFrom dplyr bind_rows group_by summarise
+#' @importFrom magrittr %>%
 #' @importFrom stats coef lm quantile
 #' @importFrom graphics boxplot legend
 #' @importFrom grDevices png dev.off
@@ -18,10 +19,10 @@ evaluate_models <- function(output_list, predR2_path) {
   }))
 
   deviance <- neg_ll %>%
-    group_by(model) %>%
-    summarise(mn = mean(2*mean),
-              lwr = stats::quantile(2*mean, 0.025),
-              upr = stats::quantile(2*mean, 0.975)) %>%
+    dplyr::group_by(model) %>%
+    dplyr::summarise(mn = mean(2*mean),
+                     lwr = stats::quantile(2*mean, 0.025),
+                     upr = stats::quantile(2*mean, 0.975)) %>%
     as.data.frame()
 
   # predictions v. real for all folds of model
@@ -30,8 +31,8 @@ evaluate_models <- function(output_list, predR2_path) {
   }))
 
   mean_pred <- pred %>%
-    group_by(model, iter, data_point, mT_real) %>%
-    summarise(mean = mean(draw)) %>%
+    dplyr::group_by(model, iter, data_point, mT_real) %>%
+    dplyr::summarise(mean = mean(draw)) %>%
     as.data.frame()
 
   for (i in unique(mean_pred$model)) {
