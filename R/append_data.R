@@ -1,8 +1,8 @@
 #' Append data subsets to job list
 #'
-#' @param input job list
-#' @param data data you will subset
-#' @param cv_cluster data column that the data will be divided on
+#' @param input job list item
+#' @param data dataframe containing data for models
+#' @param cv_cluster optional columns name to specify cv clusters
 #' @return list of jobs with subsetted data appended
 #'
 #' @export

@@ -7,11 +7,11 @@
 append_data(input, data, cv_cluster)
 }
 \arguments{
-\item{input}{job list}
+\item{input}{job list item}
 
-\item{data}{data you will subset}
+\item{data}{dataframe containing data for models}
 
-\item{cv_cluster}{data column that the data will be divided on}
+\item{cv_cluster}{optional columns name to specify cv clusters}
 }
 \value{
 list of jobs with subsetted data appended
