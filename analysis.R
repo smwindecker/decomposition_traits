@@ -18,9 +18,21 @@ model_df <- data.frame(model_type = c('w', 'w', 'ne'),
                        random_effects = c(FALSE, TRUE, FALSE),
                        cv = c(TRUE, TRUE, TRUE))
 
+jobs_list <- create_jobs(model_df, n,
+                         folder = 'output/stan/',
+                         cv_cluster = 'species_code')
+
+registerDoMC(20)
+
+compile_models(jobs_list, 'mRem', 'mInit', 't', 'species_code')
+
+output_list <- run_models(jobs_list, 'mRem', 'mInit', 't', 'species_code')
+
+outcome <- evaluate_models(output_list,
+                           predR2_path = 'output/stan/eval_plots/')
 
 
-# simulate data to check each model
+# simulate data
 set.seed(123)
 
 i <- rnorm(609, 4111, 156)
