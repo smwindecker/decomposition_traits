@@ -1,10 +1,10 @@
 #' Create design matrix of unique model combinations
 #'
-#' @param trait_list a list of traits
 #' @param model_structures dataframe listing model types and specifications
 #' @param data dataframe containing data for models
-#' @param cv_cluster optional specification for grouping of cv clusters
 #' @param folder folder to save output
+#' @param cv_cluster optional specification for grouping of cv clusters
+#' @param fixed_effects_list a list of traits
 #' @return dataframe of all model structures
 #' @examples
 #' traits <- c('N', 'C', 'SLA', 'LDMC', 'HC', 'CL', 'LG')
@@ -35,35 +35,33 @@ create_jobs <- function(model_structures, data, folder, cv_cluster = NULL, fixed
     stop('fixed effects reported but no list provided')
   }
 
+  models <- model_structures
+  # models$formula_k <- NA
+  # models$formula_alpha <- NA
+  # models$formula_beta <- NA
+
   if (!is.null(fixed_effects_list)) {
 
     # create list of traits as expressions with tilda and intercept terms
     formulas <- c('~ 1', sprintf("%s + %s", '~ 1', fixed_effects_list))
+    n <- length(formulas)
+    ne_formulas <- data.frame(model_type = rep('ne', n),
+                             fixed_effects = rep('FE', n),
+                             formula_k = formulas,
+                             stringsAsFactors = FALSE)
 
-    if (model_structures$model_type == 'ne') {
-      formula_grid <- data.frame(formulas)
-      colnames(formula_grid) <- 'formula_k'
-    }
+    models <- merge(models, ne_formulas, by = c('model_type', 'fixed_effects'))
 
-    if (model_structures$model_type == 'w') {
-      # expand this formula list so that it includes all combinations of pairs
-      formula_grid <- expand.grid(formulas, formulas, stringsAsFactors = FALSE)
-      colnames(formula_grid) <- c('formula_alpha', 'formula_beta')
-    }
+    formula_grid <- expand.grid(formulas, formulas, stringsAsFactors = FALSE)
+    g <- length(formula_grid)
+    w_formulas <- data.frame(model_type = rep('w', g),
+                             fixed_effects = rep('FE', g),
+                             formula_alpha = formula_grid[,1],
+                             formula_beta = formula_grid[,2],
+                             stringsAsFactors = FALSE)
 
-    #specify that these correspond to those models with fixed effects
-    formula_grid$fixed_effects <- 'FE'
+    models <- merge(models, w_formulas, by = c('model_type', 'fixed_effects'))
 
-    # merge, retaining rows that aren't fixed effects
-    models <- merge(model_structures, formula_grid, all.x = TRUE)
-
-  }
-
-  if (is.null(fixed_effects_list)) {
-    models <- model_structures
-    models$formula_k <- NA
-    models$formula_alpha <- NA
-    models$formula_beta <- NA
   }
 
   # give formulas to non fixed effects models
@@ -100,8 +98,4 @@ create_jobs <- function(model_structures, data, folder, cv_cluster = NULL, fixed
   data_appended
 
 }
-
-
-
-
 

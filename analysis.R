@@ -20,7 +20,8 @@ model_df <- data.frame(model_type = c('w', 'w', 'ne'),
 
 jobs_list <- create_jobs(model_df, n,
                          folder = 'output/stan/',
-                         cv_cluster = 'species_code')
+                         cv_cluster = 'species_code',
+                         fixed_effects_list = traits)
 
 registerDoMC(20)
 
