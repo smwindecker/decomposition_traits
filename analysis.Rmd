@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 library(parallel)
 library(plyr)
+library(dplyr)
 library(foreach)
 library(doMC)
 library(rstan)
@@ -105,15 +106,49 @@ foreach(i = to_compile) %dopar% {
 # run all jobs using compiled models as pre-fits
 output_list <- list()
 
-output_list <- foreach(i = 1:3) %dopar% { #length(jobs_list)
-  output_list[i] <- extract_output(jobs_list[[i]])
+output_list <- foreach(i = 1:2) %dopar% { #length(jobs_list)
+  output_i <- extract_output(jobs_list[[i]])
+  return(output_i)
 }
 
 # need to extract and rbind from both dataframes the ones from same model
+neg_ll <- dplyr::bind_rows(lapply(1:length(output_list), function(x) {
+  return(output_list[[x]]$neg_loglik)
+}))
+
+neg_ll %>%
+  group_by(model) %>%
+  summarise(mn = mean(mean),
+            lwr = quantile(mean, 0.025),
+            upr = quantile(mean, 0.975)) 
+
+pred <- dplyr::bind_rows(lapply(1:length(output_list), function(x) {
+  return(output_list[[x]]$pred_real)
+}))
+
 # then plot and save
-png(paste0('output/stan/', model, '_', iter, '_predVreal.png'))
-boxplot(draw ~ mT_real, pred_real)
-dev.off()
+lapply(1:length(output_list), function(x) {
+  df <- pred[pred$model == x,]
+  
+  png(paste0('output/stan/eval_plots', x, '.png'))
+  
+  mean_pred <- df %>% 
+    group_by(model, iter, data_point, mT_real) %>% 
+    summarise(mean = mean(draw)) %>%
+    as.data.frame()
+  
+  boxplot(draw ~ mT_real, df, 
+          ylab = 'Posterior predicted distrbitions',
+          xlab = 'Real test data')
+  fit <- lm(mean_pred$mean ~ as.numeric(unique(df$mT_real)))
+  abline(fit, col = 'red')
+  legend('topleft', bty = 'n', legend = paste('R2 is', format(summary()$adj.r.squared, digits = 4)))
+  
+  dev.off()
+  
+})
+
+
 
 
 ```
