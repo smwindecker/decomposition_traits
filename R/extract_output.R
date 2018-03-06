@@ -31,9 +31,9 @@ extract_output <- function(job, mass, initial_mass, time, group_id) {
 
   # make dataframe of the test data predicted v. real
   mT_pred_wide <- as.data.frame(fit, 'mT_pred')
-  mT_pred <- melt(mT_pred_wide,
-                  variable.name = 'data_point',
-                  value.name = 'draw')
+  mT_pred <- reshape2::melt(mT_pred_wide,
+                            variable.name = 'data_point',
+                            value.name = 'draw')
   pred_real <- data.frame(model = rep(model, nrow(mT_pred)),
                           iter = rep(iter, nrow(mT_pred)),
                           data_point = mT_pred$data_point,
