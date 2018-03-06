@@ -5,7 +5,7 @@
 #' @param initial_mass columne name in data referring to logged initial mass
 #' @param time column name in data referring to time in years
 #' @param group_id column name in data referring to random effects cluster
-#' @return list with model type, iteration, neg log likelihood output, predicted and real for test data, and diagnostics
+#' @return saves compiled models in previously specified output folder
 #' @import reshape2
 #'
 #' @export

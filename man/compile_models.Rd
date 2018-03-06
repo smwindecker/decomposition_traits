@@ -18,7 +18,7 @@ compile_models(jobs_list, mass, initial_mass, time, group_id)
 \item{group_id}{column name in data referring to random effects cluster}
 }
 \value{
-list with model type, iteration, neg log likelihood output, predicted and real for test data, and diagnostics
+saves compiled models in previously specified output folder
 }
 \description{
 Select models to compile and compile them
