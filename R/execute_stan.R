@@ -7,7 +7,7 @@
 #' @param group_id column name in data referring to random effects cluster
 #' @param compile_model whether to fully compile model or not
 #' @return stan output, and saved .rds file
-#' @importFrom rstan stan
+#' @import rstan
 #' @importFrom stats model.matrix
 #' @export
 
