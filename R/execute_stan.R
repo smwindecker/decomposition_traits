@@ -7,7 +7,8 @@
 #' @param group_id column name in data referring to random effects cluster
 #' @param compile_model whether to fully compile model or not
 #' @return stan output, and saved .rds file
-#' @import rstan
+#' @importFrom rstan stan
+#' @importFrom stats model.matrix
 #' @export
 
 execute_stan <- function (job, mass, initial_mass, time, group_id = NULL, compile_model = TRUE) {
@@ -36,10 +37,10 @@ execute_stan <- function (job, mass, initial_mass, time, group_id = NULL, compil
 
   make_matrix <- function (parameter) {
     if (parameter == '~1') {
-      matrix <- as.matrix(model.matrix(parameter, train)[1:n_train_levels,])
+      matrix <- as.matrix(stats::model.matrix(parameter, train)[1:n_train_levels,])
     }
     if (parameter != '~1') {
-      matrix <- unique(model.matrix(parameter, train))
+      matrix <- unique(stats::model.matrix(parameter, train))
     }
     matrix
   }

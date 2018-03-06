@@ -6,6 +6,7 @@
 #' @param cv_cluster optional columns name to specify cv clusters
 #' @param fixed_effects_list optional list of fixed effects - corresponding to column names in data
 #' @return list of all model iterations
+#' @importFrom utils write.csv
 #' @examples
 #' traits <- c('N', 'C', 'SLA', 'LDMC', 'HC', 'CL', 'LG')
 #' model_df <- data.frame(model_type = c('w', 'w', 'ne'),
@@ -77,7 +78,7 @@ create_jobs <- function(model_structures, data, folder, cv_cluster = NULL, fixed
   models$model <- seq(1:nrow(models))
 
   # write the formula dataframe
-  write.csv(models, paste0(folder, 'model_formulas.csv'))
+  utils::write.csv(models, paste0(folder, 'model_formulas.csv'))
 
   models[] <- lapply(models, as.character)
 

@@ -6,7 +6,7 @@
 #' @param time column name in data referring to time in years
 #' @param group_id column name in data referring to random effects cluster
 #' @return list for single model with model type, iteration, neg log likelihood output, predicted and real for test data, and diagnostics
-#' @import reshape2
+#' @importFrom reshape2 melt
 #'
 #' @export
 
