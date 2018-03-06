@@ -4,10 +4,14 @@
 \alias{expand_models}
 \title{Expand each cv model to have separate model run per cluster}
 \usage{
-expand_models(input, cluster, folder)
+expand_models(input, clusters, folder)
 }
 \arguments{
 \item{input}{job list item}
+
+\item{clusters}{unique list of cv cluster id's}
+
+\item{folder}{file path for output}
 }
 \value{
 list of jobs additional models added

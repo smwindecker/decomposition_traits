@@ -1,15 +1,17 @@
 #' Expand each cv model to have separate model run per cluster
 #'
 #' @param input job list item
+#' @param clusters unique list of cv cluster id's
+#' @param folder file path for output
 #' @return list of jobs additional models added
 #'
 #' @export
 
-expand_models <- function(input, cluster, folder) {
+expand_models <- function(input, clusters, folder) {
 
-  if (!is.null(cluster)) {
+  if (!is.null(clusters)) {
     # repeat each model n = number of species times
-    expand <- expand.grid(cv_cluster = cluster,
+    expand <- expand.grid(cv_cluster = clusters,
                           model = input$model)
     expand$model <- as.character(expand$model)
 
