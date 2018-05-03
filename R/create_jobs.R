@@ -1,45 +1,24 @@
-#' Create job list of all model iterations to be run
-#'
-#' @param model_structures dataframe listing model types and specifications
-#' @param data dataframe containing data for models
-#' @param folder folder path to save output
-#' @param cv_cluster optional columns name to specify cv clusters
-#' @param fixed_effects_list optional list of fixed effects - corresponding to column names in data
-#' @return list of all model iterations
-#' @importFrom utils write.csv
-#' @examples
-#' \dontrun{
-#' traits <- c('N', 'C', 'SLA', 'LDMC', 'HC', 'CL', 'LG')
-#' model_df <- data.frame(model_type = c('w', 'w', 'ne'),
-#'                        fixed_effects = c(TRUE, FALSE, FALSE),
-#'                        random_effects = c(FALSE, TRUE, FALSE),
-#'                        cv = c(TRUE, TRUE, TRUE))
-#' jobs_list <- create_jobs(model_structures = model_df,
-#'                          data = df,
-#'                          folder = 'output/stan/',
-#'                          cv_cluster = 'species_code',
-#'                          fixed_effects_list = traits)
-#' }
-#'
-#' @export
+# Create job list of all model iterations to be run
+#
+# @param models dataframe listing model types and specifications
+# @param data dataframe containing data for models
+# @param cv_cluster optional columns name to specify cv clusters
+# @param fixed_effects_list optional list of fixed effects - corresponding to column names in data
+# @return list of all model iterations
+# traits <- c('N', 'C', 'SLA', 'DMC', 'HC', 'CL', 'LG')
+# model_df <- data.frame(model_type = c('w', 'w', 'ne'),
+#                        fixed_effects = c(TRUE, FALSE, FALSE),
+#                        random_effects = c(FALSE, TRUE, FALSE))
+# jobs_list <- create_jobs(models = model_df,
+#                          data = df,
+#                          cv_cluster = 'species_code',
+#                          fixed_effects_list = traits)
 
-create_jobs <- function(model_structures, data, folder, cv_cluster = NULL, fixed_effects_list = NULL) {
+create_jobs <- function (models, data, cv_cluster = NULL, fixed_effects_list = NULL) {
 
-  # modify structures df so in correct form
-  model_structures$fixed_effects[model_structures$fixed_effects == TRUE] <- 'FE'
-  model_structures$fixed_effects[model_structures$fixed_effects == FALSE] <- 'noFE'
-
-  model_structures$random_effects[model_structures$random_effects == TRUE] <- 'RE'
-  model_structures$random_effects[model_structures$random_effects == FALSE] <- 'noRE'
-
-  model_structures$cv[model_structures$cv == TRUE] <- 'CV'
-  model_structures$cv[model_structures$cv == FALSE] <- 'noCV'
-
-  if (is.null(fixed_effects_list) & nrow(model_structures[model_structures$fixed_effects == 'FE', ]) > 0) {
+  if (is.null(fixed_effects_list) & nrow(models[isTRUE(models$fixed_effects), ]) > 0) {
     stop('fixed effects reported but no list provided')
   }
-
-  models <- model_structures
 
   if (!is.null(fixed_effects_list)) {
 
@@ -79,30 +58,35 @@ create_jobs <- function(model_structures, data, folder, cv_cluster = NULL, fixed
   # number the models
   models$model <- seq(1:nrow(models))
 
-  # write the formula dataframe
-  utils::write.csv(models, paste0(folder, 'model_formulas.csv'))
-
-  models[] <- lapply(models, as.character)
+  models <- models[, - which(names(models) %in% 'fixed_effects')]
 
   # change dataframe to list
   jobs <- split(models, seq(nrow(models)))
 
+  # if cv cluster is provided, these jobs are cv. and therefore need to be expanded
   if (!is.null(cv_cluster)) {
     clusters <- unique(data[, cv_cluster])
-  } else {
-    clusters <- NULL
+    tmp <- lapply(jobs, expand_models, clusters)
+    jobs <- unlist(tmp, recursive = FALSE)
   }
 
-  folder_path <- folder
+  jobs
 
-  # expand models
-  jobs <- lapply(jobs, expand_models, clusters, folder_path)
-  jobs <- unlist(jobs, recursive = FALSE)
+}
 
-  # append correct data to each job in list
-  data_appended <- lapply(jobs, append_data, data, cv_cluster)
+expand_models <- function (input, clusters) {
 
-  data_appended
+  # repeat each model n = number of species times
+  expand <- expand.grid(cv_cluster = clusters,
+                        model = input$model)
+  expand$model <- as.character(expand$model)
+
+  # merge with formula dataframe so also have the parameter functions listed
+  job <- merge(expand, input, by = 'model')
+
+  list <- split(job, seq(nrow(job)))
+
+  return(list)
 
 }
 
