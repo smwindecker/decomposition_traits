@@ -1,0 +1,138 @@
+
+packages:
+  - decaymod
+  - doMC
+  - foreach
+  - grDevices
+  - graphics
+  - knitr
+  - rstan
+  - stats
+  - tools
+  - utils
+  - xtable
+
+sources:
+  - 'R/trait_data.R'
+  - 'R/decay_data.R'
+  - 'R/create_jobs.R'
+  - 'R/decaymod.R'
+  - 'R/figures.R'
+  - 'R/tables.R'
+  - 'R/manuscript_functions.R'
+
+targets:
+  all:
+    depends:
+      - figures
+      - tables
+      - manuscript.pdf
+
+  figures:
+    depends:
+      - figs/boxplot.png
+      - figs/pairplot.png
+      - figs/raw_pca.png
+
+  tables:
+    depends:
+      - figs/pca_loadings.tex
+      - figs/traits_table.tex
+      - figs/deviance.tex
+
+  # --------- data ------------------------
+
+  combined_traits:
+    command: traits_combine(species_data = "data-raw/species.csv",
+                            leco_data = "data-raw/leco.csv",
+                            trait_data = "data-raw/traits.csv",
+                            tga_data_folder = "data-raw/tga/")
+    cleanup_level: purge
+    check: exists
+
+  mean_traits:
+    command: traits_mean_only(combined_traits)
+
+  decay_data:
+    command: prepare_decay_data(initial_weight = "data-raw/pre_weight.csv",
+                                removal_weight = "data-raw/decomp_weight.csv",
+                                trait_data = mean_traits)
+
+  logged_trait_matrix:
+    command: traits_log(mean_traits)
+
+  pca_output:
+    command: pca_data(logged_trait_matrix)
+
+  # -------- analyse data ---------
+
+  job_list:
+    command: create_jobs(models = I(data.frame(model_type = c("w", "w", "ne"),
+                                               fixed_effects = c(TRUE, FALSE, FALSE),
+                                               random_effects = c(FALSE, TRUE, FALSE))),
+                         data = decay_data,
+                         cv_cluster = I("species_code"),
+                         fixed_effects_list = I(c("N", "C", "SLA", "DMC", "HC", "CL", "LG")))
+
+  model_list:
+    command: run_models(job_list,
+                        decay_data,
+                        initial_mass = I("mInit"),
+                        removal_mass = I("mRem"),
+                        time = I("t"),
+                        group = I("species_code"),
+                        n_cores = I(20))
+
+
+
+
+
+
+  # -------- figures -------------
+
+  figs/boxplot.png:
+    plot:
+      width: 1200
+      height: 950
+    command: box_plot(mean_traits)
+
+  figs/raw_pca.png:
+    plot:
+      width: 1000
+      height: 950
+    command: pca(pca_output, logged_trait_matrix, species)
+
+  figs/pairplot.png:
+    plot:
+      width: 1500
+      height: 1500
+    command: pair_plot(logged_trait_matrix)
+
+  # --------- tables ---------
+  figs/traits_table.tex:
+    command: traits_table(combined_traits, target_name)
+
+  figs/pca_loadings.tex:
+    command: pca_loadings(pca_output, target_name)
+
+  figs/deviance.tex:
+    command: deviance_table(model_list, target_name)
+
+
+  # ------ report ---------
+  manuscript.tex:
+    depends:
+      - combined_traits
+      - mean_traits
+      - decay_data
+      - logged_trait_matrix
+      - pca_output
+      - job_list
+      - model_list
+    knitr: TRUE
+
+  manuscript.pdf:
+    command: texi2pdf("manuscript.tex", clean = TRUE)
+    depends:
+      - figures
+      - tables
