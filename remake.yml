@@ -6,6 +6,7 @@ packages:
   - grDevices
   - graphics
   - knitr
+  - magrittr
   - rstan
   - stats
   - tools
@@ -33,17 +34,23 @@ targets:
       - figs/boxplot.png
       - figs/pairplot.png
       - figs/raw_pca.png
+      - figs/weibull_sim.png
 
   tables:
     depends:
       - figs/pca_loadings.tex
       - figs/traits_table.tex
       - figs/deviance.tex
+      - figs/diagnostics.tex
+      - figs/model_list.rds
 
   # --------- data ------------------------
 
+  species:
+    command: load_species("data-raw/species.csv")
+
   combined_traits:
-    command: traits_combine(species_data = "data-raw/species.csv",
+    command: traits_combine(species_data = species,
                             leco_data = "data-raw/leco.csv",
                             trait_data = "data-raw/traits.csv",
                             tga_data_folder = "data-raw/tga/")
@@ -67,12 +74,12 @@ targets:
   # -------- analyse data ---------
 
   job_list:
-    command: create_jobs(models = I(data.frame(model_type = c("w", "w", "ne"),
-                                               fixed_effects = c(TRUE, FALSE, FALSE),
-                                               random_effects = c(FALSE, TRUE, FALSE))),
+    command: create_jobs(models = I(data.frame(model_type = c("w"),
+                                               fixed_effects = c(TRUE),
+                                               random_effects = c(FALSE))),
                          data = decay_data,
                          cv_cluster = I("species_code"),
-                         fixed_effects_list = I(c("N", "C", "SLA", "DMC", "HC", "CL", "LG")))
+                         fixed_effects_list = I(c("N")))
 
   model_list:
     command: run_models(job_list,
@@ -82,11 +89,6 @@ targets:
                         time = I("t"),
                         group = I("species_code"),
                         n_cores = I(20))
-
-
-
-
-
 
   # -------- figures -------------
 
@@ -108,6 +110,24 @@ targets:
       height: 1500
     command: pair_plot(logged_trait_matrix)
 
+  figs/var_alpha.png:
+    plot:
+      width: 400
+      height: 350
+    command: simulate_weibull(constant_param = I('beta'),
+                   constant_value = 1.3,
+                   low = 0.3,
+                   high = 1.2)
+
+  figs/var_beta.png:
+    plot:
+      width: 400
+      height: 350
+    command: simulate_weibull(constant_param = I('alpha'),
+                 constant_value = 1,
+                 low = 0.3,
+                 high = 2.5)
+
   # --------- tables ---------
   figs/traits_table.tex:
     command: traits_table(combined_traits, target_name)
@@ -115,9 +135,14 @@ targets:
   figs/pca_loadings.tex:
     command: pca_loadings(pca_output, target_name)
 
+  figs/decay_data.csv:
+    command: write.csv(decay_data, target_name)
+
+  figs/model_list.rds:
+    command: saveRDS(model_list, target_name)
+
   figs/deviance.tex:
     command: deviance_table(model_list, target_name)
-
 
   # ------ report ---------
   manuscript.tex:
