@@ -1,5 +1,6 @@
+## Prepare decomposition data
 
-clean_data <- function (initial_weight, removal_weight, trait_data) {
+prepare_decay_data <- function (initial_weight, removal_weight, trait_data) {
 
   # weights of the litter before decomposition
   leaves <- read.csv(initial_weight, header = T)

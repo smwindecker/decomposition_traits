@@ -38,6 +38,9 @@ evaluate_decaymod <- function (df, data, initial_mass, removal_mass, time, group
                   formula_alpha = df$formula_alpha,
                   formula_beta = df$formula_beta)
 
+  neg_loglik_df <- as.data.frame(fit, 'neg_loglik')
+  df$neg_loglik <- mean(neg_loglik_df$neg_loglik, na.rm = TRUE)
+
   # make dataframe of the test data predicted v. real
   # mT_pred_wide <- as.data.frame(fit, 'mT_pred')
   # mT_pred <- reshape2::melt(mT_pred_wide,
@@ -62,14 +65,12 @@ evaluate_decaymod <- function (df, data, initial_mass, removal_mass, time, group
                             max_treedepth = max_treedepth,
                             stringsAsFactors = FALSE)
 
-  list <- unlist(df, recursive = FALSE)
+  #list <- unlist(df, recursive = FALSE)
 
-  neg_loglik_df <- as.data.frame(fit, 'neg_loglik')
-  neg_loglik <- mean(neg_loglik_df$neg_loglik, na.rm = TRUE)
 
-  fit_list <- list(mod_specs = list,
+
+  fit_list <- list(mod_specs = df,
                    fit = fit,
-                   neg_loglik = neg_loglik,
                    diagnostics = diagnostics)
   fit_list
 
@@ -282,3 +283,4 @@ make_matrix <- function (model_type, X_type, n_train_levels. = n_train_levels,
 
   mat
 }
+
