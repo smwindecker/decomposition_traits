@@ -90,18 +90,23 @@ deviance_table <- function (output_list, output_file) {
 
   # negative log likelihood results
   neg_ll <- dplyr::bind_rows(lapply(1:length(output_list), function(x) {
-    return(output_list[[x]]$neg_loglik)
+    return(output_list[[x]]$mod_specs)
   }))
 
   deviance <- neg_ll %>%
     dplyr::group_by(model) %>%
-    dplyr::summarise(mn = mean(2*mean),
-                     lwr = stats::quantile(2*mean, 0.025),
-                     upr = stats::quantile(2*mean, 0.975)) %>%
-    as.data.frame() %>%
+    dplyr::summarise(mn = median(2*neg_loglik),
+                     lwr = stats::quantile(2*neg_loglik, 0.025),
+                     upr = stats::quantile(2*neg_loglik, 0.975)) %>%
+    as.data.frame()
+
+  # this is keeping replicate rows! it's not doing the all.y = FALSE...
+  rank_models <- unique(merge(deviance, neg_ll[, c('model', 'model_type', 'formula_k',
+                                  'formula_alpha', 'formula_beta')],
+                       by = 'model', all.y = FALSE)) %>%
     xtable::xtable(.)
 
-  print(deviance,
+  print(rank_models,
         include.rownames = FALSE,
         include.colnames = FALSE,
         only.contents = TRUE,
@@ -109,3 +114,22 @@ deviance_table <- function (output_list, output_file) {
         hline.after = NULL,
         file = output_file)
 }
+
+# extract diagnostics
+diagnostics_table <- function (output_list, length_data, output_file) {
+
+  diag <- dplyr::bind_rows(lapply(1:length(output_list), function(x) {
+    return(output_list[[x]]$diagnostics)
+  }))
+
+  not_converged <- diag[(diag$abs_rhat > 1.1 |
+                           diag$neff_min/length_data < 0.001 |
+                           diag$sum_div > 0 |
+                           diag$max_tree_c1 > 10 |
+                           diag$max_tree_c2 > 10 |
+                           diag$max_tree_c3 > 10), ]
+
+  write.csv(not_converged, output_file)
+}
+
+
