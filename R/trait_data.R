@@ -1,5 +1,14 @@
 ## Load data
 
+# Prepare species data
+load_species <- function (species_data) {
+
+  species <- read.csv(species_data, header = T) %>%
+    dplyr::filter(species_code != 'AA')
+
+  species
+}
+
 # Prepare C and N trait data
 load_leco_traits <- function (leco_data) {
 
@@ -150,7 +159,7 @@ process_raw_tga <- function (raw_file) {
 traits_combine <- function (species_data, leco_data, trait_data, tga_data_folder) {
 
   # here first load the appropriate ones from load_data.R
-  species_df <- load_species(species_data = species_data)
+  species_df <- species_data
   carbon_nitrogen <- load_leco_traits(leco_data = leco_data)
   economic_traits <- load_les_traits(trait_data = trait_data,
                                      species_data = species_df)
