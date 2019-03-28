@@ -1,14 +1,5 @@
 ## Load data
 
-# Prepare species data
-load_species <- function (species_data) {
-
-  species <- read.csv(species_data, header = T) %>%
-    dplyr::filter(species_code != 'AA')
-
-  species
-}
-
 # Prepare C and N trait data
 load_leco_traits <- function (leco_data) {
 
@@ -31,21 +22,23 @@ load_les_traits <- function (trait_data, species_data) {
   # merge with the species data file
   trait <- merge(traits[!traits$species_code == 'AA',],
                  species_data[!species_data$species_code == 'AA',
-                              c('species_code', 'sp_abrev', 'species', 'family', 'plant_part', 'gf')],
+                              c('species_code', 'sp_abrev', 'species', 'family', 'plant_part', 'gf', 'gf_old')],
                  by = c('species_code', 'plant_part'))
 
-  # calculate SLA (m2/g) and DMC (mg/g) for each of ten samples
-  trait$longSLA <- (trait$area/100)/trait$dry_weight
+  # calculate LAM (m2/g) and DMC (mg/g) for each of ten samples
+  trait$longLAM <- (trait$area/100)/trait$dry_weight
   trait$longDMC <- (trait$dry_weight*1000)/trait$wet_weight
 
-  # calculate mean SLA and DMC of ten samples
-  trait_1 <- plyr::ddply(trait, 'species_code',
-                         plyr::summarise,
-                         SLA = mean(longSLA),
-                         DMC = mean(longDMC))
+  # calculate mean LAM and DMC of ten samples
+  trait_1 <- trait %>%
+    dplyr::group_by(species_code) %>%
+    dplyr::summarize(
+      LAM = mean(longLAM),
+      DMC = mean(longDMC)
+    )
 
   # merge with species data
-  trt <- merge(trait_1, unique(trait[,c('species_code', 'sp_abrev', 'species', 'family', 'gf')]))
+  trt <- merge(trait_1, unique(trait[,c('species_code', 'sp_abrev', 'species', 'family', 'gf', 'gf_old')]))
   trt
 
 }
@@ -77,11 +70,11 @@ tga_deconvolve <- function (species_code, data_folder) {
   three <- c('KK', 'M', 'X')
 
   if (x %in% three) {
-    n_curves <- 3
+    n_peaks <- 3
   } else if (x == 'CC') {
-    n_curves <- 4
+    n_peaks <- 4
   } else {
-    n_curves = NULL
+    n_peaks = NULL
   }
 
   # read raw TGA
@@ -89,19 +82,12 @@ tga_deconvolve <- function (species_code, data_folder) {
   tmp <- process_raw_tga(file)
 
   # deconvolve TGA data
-  output <- deconvolve::deconvolve(tmp, upper_temp = 650, n_curves = n_curves)
+  output <- mixchar::deconvolve(tmp, upper_temp = 650, n_peaks = n_peaks)
 
-  # extract weights of components
-  mean_weights <- data.frame(t(output$mean_weights))
-  mean_weights$wt_type <- 'mean'
+  # extract weight estimates
+  weights <- output$weights
 
-  # extract confidence intervals of component weights
-  ci_weights <- data.frame(output$CI_weights)
-  ci_weights$wt_type <- rownames(ci_weights)
-
-  # combine means and confidence intervals of weights
-  weights <- rbind(mean_weights, ci_weights)
-
+  # if 3-curves, add HC_1 and change name of HC to HC_2
   if (ncol(weights) == 4) {
     weights$HC_1 <- NA
     colnames(weights)[1] <- 'HC_2'
@@ -109,21 +95,19 @@ tga_deconvolve <- function (species_code, data_folder) {
 
   # set species of weight outputs
   weights$species_code <- x
-  weights <- weights[, c('species_code', 'HC_1', 'HC_2', 'CL', 'LG', 'wt_type')]
+  weights <- weights[, c('species_code', 'HC_1', 'HC_2', 'CL', 'LG', 'value_type')]
 
   # set species of parameter outputs and make data wide
-  params <- as.data.frame(summary(output$minpack.lm)$coefficients[,1])
+  params <- as.data.frame(summary(output$model_fit)$coefficients[,1])
   params$species_code <- x
   params$parameter <- row.names(params)
   colnames(params) <- c('coefficient', 'species_code', 'parameter')
-  params <- reshape2::dcast(params, species_code ~ parameter, value.var = 'coefficient')
+  params <- tidyr::spread(params, parameter, coefficient)
 
-  return(x = list(output = list(data = output$data,
-                                bounds = output$bounds,
-                                minpack.lm = output$minpack.lm,
-                                n_peaks = output$n_peaks,
-                                CI_weights = output$CI_weights,
-                                mean_weights = output$mean_weights),
+  return(x = list(data = output$data,
+                  bounds = output$bounds,
+                  minpack.lm = output$model_fit,
+                  n_peaks = output$n_peaks,
                   weights = weights,
                   params = params))
 
@@ -147,31 +131,31 @@ process_raw_tga <- function (raw_file) {
   df <- read.csv(raw_file, header = FALSE, skip = 29)
   names(df) <- c('temp', 'time', 'mass_loss')
   init_mass <- read.csv(raw_file, nrows = 1, header = FALSE, skip = 17)[1,2]
-  tmp <- deconvolve::process(df, 'temp', 'mass_loss', init_mass)
+  tmp <- mixchar::process(df,
+                          init_mass = init_mass,
+                          temp = 'temp',
+                          mass_loss = 'mass_loss')
 
   tmp
 }
 
-
 ## Analyse data
-
 # Merge trait datasets
-traits_combine <- function (species_data, leco_data, trait_data, tga_data_folder) {
+traits_combine <- function (species_data, leco_data, trait_data, tga_data_folder, ranseed) {
 
-  # here first load the appropriate ones from load_data.R
-  species_df <- species_data
-  carbon_nitrogen <- load_leco_traits(leco_data = leco_data)
-  economic_traits <- load_les_traits(trait_data = trait_data,
-                                     species_data = species_df)
-  tga_output <- tga_wrapper(species_data = species_df,
-                            function_name = tga_deconvolve,
-                            data_folder = tga_data_folder)
-  biomass_traits <- load_tga_traits(tga_output)
+    # here first load the appropriate ones from load_data.R
+    species_df <- species_data
+    carbon_nitrogen <- load_leco_traits(leco_data = leco_data)
+    economic_traits <- load_les_traits(trait_data = trait_data,
+                                       species_data = species_df)
+    tga_output <- tga_wrapper(species_data = species_df,
+                              function_name = tga_deconvolve,
+                              data_folder = tga_data_folder)
+    biomass_traits <- load_tga_traits(tga_output)
 
-  t <- dplyr::full_join(economic_traits, carbon_nitrogen, by = 'species_code') %>%
-    dplyr::full_join(., biomass_traits, by = 'species_code') %>%
-    dplyr::arrange(., species) %>%
-    .[, c(1,4:7,2,3,9,8,10:14)]
+    t <- dplyr::full_join(economic_traits, carbon_nitrogen, by = 'species_code') %>%
+      dplyr::full_join(., biomass_traits, by = 'species_code') %>%
+      .[, c(1,4:8,2,3,10,9,11:15)]
 
   t
 }
@@ -179,10 +163,8 @@ traits_combine <- function (species_data, leco_data, trait_data, tga_data_folder
 # Select mean of traits
 traits_mean_only <- function (traits) {
 
-  t_mean <- traits %>%
-    dplyr::filter(wt_type == 'mean') %>%
-    dplyr::mutate(HC = HC_1 + HC_2)
-
+  t_mean <- traits[traits$value_type == 'mean',]
+  t_mean$HC <- t_mean$HC_1 + t_mean$HC_2
   t_mean$HC[is.na(t_mean$HC)] <- t_mean$HC_2[is.na(t_mean$HC)]
 
   t_mean
@@ -193,7 +175,7 @@ traits_log <- function (t_mean) {
 
   cov <- t_mean %>%
     magrittr::set_rownames(t_mean[, 'sp_abrev']) %>%
-    dplyr::select(SLA, DMC, N, C, HC, CL, LG)
+    dplyr::select(LAM, DMC, N, C, HC, CL, LG)
   cov[] <- log(cov[])
 
   cov
@@ -207,3 +189,4 @@ pca_data <- function (df) {
 
   prin
 }
+
