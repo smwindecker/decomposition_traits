@@ -1,49 +1,131 @@
 
-# Analysis for decay paper
-R.utils::sourceDirectory('R/')
-
 library(decaymod)
 library(mixchar)
 library(magrittr)
 library(rstan)
+library(memisc)
+
+path <- 'chapters/Chapter5_decomp/'
+R.utils::sourceDirectory(paste0(path, 'R/'))
+
 # ==================
 # prepare decomposition data
-species <- load_species("data-raw/species.csv")
 
-combined_traits <- traits_combine(species_data = species,
-                                  leco_data = "data-raw/leco.csv",
-                                  trait_data = "data-raw/traits.csv",
-                                  tga_data_folder = "data-raw/tga/",
-                                  ranseed = 1)
+# species <- load_species("chapters/Chapter3_traits/data-raw/species.csv")
+#
+# combined_traits <- traits_combine(species_data = species,
+#                                   leco_data = "chapters/Chapter3_traits/data-raw/leco.csv",
+#                                   trait_data = "chapters/Chapter3_traits/data-raw/traits.csv",
+#                                   tga_data_folder = "chapters/Chapter3_traits/data-raw/tga/",
+#                                   ranseed = 1)
+#
+# mean_traits <- traits_mean_only(combined_traits)
 
-mean_traits <- traits_mean_only(combined_traits)
-
-decay <- prepare_decay_data(initial_weight = "data-raw/pre_weight.csv",
-                            removal_weight = "data-raw/decomp_weight.csv",
+decay <- prepare_decay_data(initial_weight = paste0(path, "data-raw/pre_weight.csv"),
+                            removal_weight = paste0(path, "data-raw/decomp_weight.csv"),
                             trait_data = mean_traits)
 
-decay <- read.csv('decay_data.csv')
+decay <- read.csv(paste0(path, 'decay_data.csv'))
 
 # ================
 # null models
-ne.cv.nore <- readRDS('model_output/ne.cv.nore.RDS')
-w.cv.nore <- readRDS('model_output/w.cv.nore.RDS')
+ne_cv_nore <- readRDS(paste0(path, 'model_output/ne.cv.nore.RDS'))
+w_cv_nore <- readRDS(paste0(path, 'model_output/w.cv.nore.RDS'))
 
 # species estimates in null models
-ne.nocv.re <- readRDS('model_output/ne.nocv.re.RDS')
-w.nocv.re <- readRDS('model_output/w.nocv.re.RDS')
+ne_nocv_re <- readRDS(paste0(path, 'model_output/ne.nocv.re.RDS'))
+w_nocv_re <- readRDS(paste0(path, 'model_output/w.nocv.re.RDS'))
 
+best_re_mod <- best_re('N', 'C')
+
+ne_sim_df <- prep_sim_df(ne_nocv_re)
+w_sim_df <- prep_sim_df(w_nocv_re)
+
+# decay_and_params <- param_output(decay, ne_nocv_re, w_nocv_re)
+
+alphas <- format_param(w_nocv_re, 'alpha_fit')
+betas <- format_param(w_nocv_re, 'beta_fit')
+
+a_post <- prep_post(w_nocv_re, decay, 'alpha')
+b_post <- prep_post(w_nocv_re, decay, 'beta')
+k_post <- prep_post(ne_nocv_re, decay, 'k')
+
+all_trait_models_mean <- get_deviance(path)
+all_trait_models_median <- get_deviance(path, fun = 'median')
+
+png(paste0(path, 'figs/mod_four.png'), width = 1000, height = 980)
+mod_plot_four(decay, w_sim_df, ne_sim_df, alphas, betas,
+              species_names = c('C', 'BB', 'CC', 'L'))
+dev.off()
+
+png(paste0(path, 'figs/mods_ar.png'), width = 1500, height = 980)
+mod_plot_ar(decay, w_sim_df, ne_sim_df, subfig = 'a')
+dev.off()
+
+png(paste0(path, 'figs/mods_at.png'), width = 1500, height = 1940)
+mod_plot_at(decay, w_sim_df, ne_sim_df, subfig = 'b')
+dev.off()
+
+png(paste0(path, 'figs/mods_tda.png'), width = 1500, height = 1460)
+mod_plot_tda(decay, w_sim_df, ne_sim_df, subfig = 'c')
+dev.off()
+
+png(paste0(path, 'figs/mods_tdr.png'), width = 1500, height = 980)
+mod_plot_tdr(decay, w_sim_df, ne_sim_df, subfig = 'd')
+dev.off()
+
+png(paste0(path, 'figs/trait_plots.png'))
+traits_nocvnore_model(decay)
+dev.off()
+
+png('figs/kb_plot.png', width = 1000, height = 980)
+kb_param_plot(k_post, b_post)
+dev.off()
+
+png(paste0(path, 'figs/sigma_sp.png'), width = 1000, height = 800)
+sigma_sp_plot(w_nocv_re, best_re_mod)
+dev.off()
+
+png(paste0(path, 'figs/a_plot.png'), width = 1000, height = 980)
+a_param_plot(a_post)
+dev.off()
+
+png(paste0(path, 'figs/ab_cor_plot.png'), width = 1000, height = 980)
+kb_cor(a_post, b_post, 'alpha')
+dev.off()
+
+png('figs/kb_cor_plot.png', width = 1000, height = 980)
+kb_cor(k_post, b_post, 'kappa')
+dev.off()
+
+# png('figs/best_mod_trait_effects.png', width = 1000, height = 980)
+# sim_best_traits_plot(decay, sim_best_model)
+# dev.off()
+
+# ------ tables -------
+param_table(decay, ne_nocv_re, w_nocv_re, paste0(path, 'figs/species_parameters.tex'))
+
+# trait models on w
+deviance_trait_models(all_trait_models_mean, paste0(path, 'figs/deviance_mean.tex'))
+deviance_trait_models(all_trait_models_median, paste0(path, 'figs/deviance_median.tex'))
+deviance_trait_models(all_trait_models_median,
+                      paste0(path, 'figs/short_deviance_median.tex'),
+                      short = TRUE)
+
+
+
+knitr::knit('manuscript.Rnw')
+tinytex::pdflatex("manuscript.tex", clean = TRUE)
+
+
+
+# IN PROGRESS ================
 alpha <- rstan::extract(w.nocv.re$fit, pars = 'alpha_fit')$alpha_fit
 beta <- rstan::extract(w.nocv.re$fit, pars = 'beta_fit')$beta_fit
 
 hl <- sapply(1:ncol(alpha), function(i) half_life(alpha[,i], beta[,i]))
 mrt <- sapply(1:ncol(alpha), function(i) residence_time(alpha[,i], beta[,i]))
 
-# trait models on w
-all_trait_models_mean <- get_deviance()
-all_trait_models_median <- get_deviance(fun = 'median')
-deviance_trait_models(all_trait_models_mean, 'figs/deviance_mean.tex')
-deviance_trait_models(all_trait_models_median, 'figs/deviance_median.tex')
 
 
 traits <- c('N', 'C')
@@ -51,9 +133,9 @@ traits <- c('N', 'C')
 all_fe <- c(traits, combn(traits, 2, simplify = FALSE))
 
 best.traits.nocv.re_jobs <- create_jobs(model_type = 'w',
-                                       data = decay,
-                                       random_effects = TRUE,
-                                       fixed_effects = all_fe)
+                                        data = decay,
+                                        random_effects = TRUE,
+                                        fixed_effects = all_fe)
 best.traits.nocv.re <- run_models(best.traits.nocv.re_jobs[3],
                                   decay,
                                   initial_mass = "mInit",
@@ -131,7 +213,6 @@ dev.off()
 
 # best model with w, traits, and re
 w.traits.cv.re <- readRDS('model_output/w.traits.cv.re.RDS')
-w.traits.nocv.re <-
 
 
 subset <- readRDS('model_output/beta.traits.cv.nore400.RDS')$mod_specs
@@ -142,71 +223,24 @@ w.traits.cv.nore <- subset[subset$param_formula == my_formula, ]
 # this looks bad. :(
 deviance_reduction(ne.cv.nore, w.cv.nore, w.traits.cv.nore, w.traits.cv.re)
 #
-# ================
-
-ne_sim_df <- prep_sim_df(ne.nocv.re)
-w_sim_df <- prep_sim_df(w.nocv.re)
-
-png('figs/raw_simulate_weibull.png', width = 1000, height = 980)
-simulate_weibull()
-dev.off()
-
-param_estimates <- param_output(decay, ne.nocv.re, w.nocv.re)
-
-# analyse nocv.re model
-png('figs/mod_four.png', width = 1000, height = 980)
-mod_plot_four(decay, w_sim_df, ne_sim_df, param_estimates,
-              species_names = c('C', 'BB', 'CC', 'L'))
-dev.off()
-
-png('figs/mod_two.png', width = 1000, height = 520)
-mod_plot_two(decay, w_sim_df, ne_sim_df, param_estimates,
-             species_names = c('L', 'C'))
-dev.off()
-
-png('figs/mods_ar.png', width = 1500, height = 980)
-mod_plot_ar(decay, w_sim_df, ne_sim_df, subfig = 'a')
-dev.off()
-
-png('figs/mods_at.png', width = 1500, height = 1940)
-mod_plot_at(decay, w_sim_df, ne_sim_df, subfig = 'b')
-dev.off()
-
-png('figs/mods_tda.png', width = 1500, height = 1460)
-mod_plot_tda(decay, w_sim_df, ne_sim_df, subfig = 'c')
-dev.off()
-
-png('figs/mods_tdr.png', width = 1500, height = 980)
-mod_plot_tdr(decay, w_sim_df, ne_sim_df, subfig = 'd')
-dev.off()
-
-param_table(param_estimates, 'figs/species_parameters.tex')
-
-a_post <- prep_post(w.nocv.re, decay, 'alpha')
-b_post <- prep_post(w.nocv.re, decay, 'beta')
-k_post <- prep_post(ne.nocv.re, decay, 'k')
-
-png('figs/kb_plot.png', width = 1000, height = 980)
-kb_param_plot(k_post, b_post)
-dev.off()
-
-png('figs/a_plot.png', width = 1000, height = 980)
-a_param_plot(a_post)
-dev.off()
-
-png('figs/kb_cor_plot.png', width = 1000, height = 980)
-kb_cor(k_post, b_post)
-dev.off()
-
-png('figs/best_mod_trait_effects.png', width = 1000, height = 980)
-sim_best_traits_plot(decay, sim_best_model)
-dev.off()
 
 
 
 
-knitr::knit('manuscript.Rnw')
-tinytex::pdflatex("manuscript.tex", clean = TRUE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
