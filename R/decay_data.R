@@ -58,30 +58,27 @@ prepare_decay_data <- function (initial_weight, removal_weight, trait_data) {
   m_1$t <- m_1$days/365
 
   # scale and log traits
-  trait_list <- c('SLA', 'DMC', 'N', 'C', 'HC', 'CL', 'LG')
-  for (i in unique(trait_list)) {
-    m_1[, i] <- scale(log(m_1[, i]))
-  }
+  trait_list <- c('LAM', 'DMC', 'N', 'C', 'HC', 'CL', 'LG')
+
+  m_1.5 <- scale(log(m_1[, trait_list]))
+
+  colnames(m_1)[12:21] <- c('orig_LAM', 'orig_DMC', 'orig_N', 'orig_C', 'orig_HC_1', 'orig_HC_2',
+                            'orig_CL', 'orig_LG', 'value_type', 'orig_HC')
+  m_2 <- cbind(m_1, m_1.5)
 
   # reorder by species
-  m_2 <- m_1[order(m_1$species_code),]
+  m_2 <- m_2[order(m_2$species_code),]
 
   # subset inundated data set
   n <- m_2[m_2$fTreatment == 'inundated', ]
   n$species_code <- as.character(n$species_code)
 
-  n
+  reordered <- plyr::arrange(n, species_code, days, fTub)
+
+  reordered
   # variable dataset
   #v_sp <- unique(m_1$species[m_2$fTreatment == 'variable'])
   #v <- m_1[m_1$species %in% v_sp, ]
   #write.table(m_2, 'munge/all_data.txt')
 
 }
-
-
-
-
-
-
-
-
