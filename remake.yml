@@ -2,10 +2,12 @@
 packages:
   - decaymod
   - doMC
+  - dplyr
   - foreach
   - grDevices
   - graphics
   - knitr
+  - tinytex
   - magrittr
   - rstan
   - stats
@@ -16,11 +18,12 @@ packages:
 sources:
   - 'R/trait_data.R'
   - 'R/decay_data.R'
-  - 'R/create_jobs.R'
-  - 'R/decaymod.R'
   - 'R/figures.R'
   - 'R/tables.R'
+  - 'R/model_analysis.R'
   - 'R/manuscript_functions.R'
+  - 'R/best_model.R'
+  - 'R/get_deviance.R'
 
 targets:
   all:
@@ -31,18 +34,19 @@ targets:
 
   figures:
     depends:
-      - figs/boxplot.png
-      - figs/pairplot.png
-      - figs/raw_pca.png
-      - figs/weibull_sim.png
+      - figs/raw_simulate_weibull.png
+      - figs/mod_two.png
+      - figs/mods_ar.png
+      - figs/mods_at.png
+      - figs/mods_tda.png
+      - figs/mods_tdr.png
+      - figs/a_plot.png
+      - figs/kb_plot.png
+      - figs/kb_cor_plot.png
 
   tables:
     depends:
-      - figs/pca_loadings.tex
-      - figs/traits_table.tex
-      - figs/deviance.tex
-      - figs/diagnostics.tex
-      - figs/model_list.rds
+      - figs/species_parameters.tex
 
   # --------- data ------------------------
 
@@ -53,111 +57,162 @@ targets:
     command: traits_combine(species_data = species,
                             leco_data = "data-raw/leco.csv",
                             trait_data = "data-raw/traits.csv",
-                            tga_data_folder = "data-raw/tga/")
+                            tga_data_folder = "data-raw/tga/",
+                            ranseed = I(1))
     cleanup_level: purge
     check: exists
 
   mean_traits:
     command: traits_mean_only(combined_traits)
 
-  decay_data:
+  decay:
     command: prepare_decay_data(initial_weight = "data-raw/pre_weight.csv",
                                 removal_weight = "data-raw/decomp_weight.csv",
                                 trait_data = mean_traits)
 
-  logged_trait_matrix:
-    command: traits_log(mean_traits)
+  ne.cv.nore:
+    command: readRDS('model_output/ne.cv.nore.rds')
 
-  pca_output:
-    command: pca_data(logged_trait_matrix)
+  w.cv.nore:
+    command: readRDS('model_output/w.cv.nore.rds')
 
-  # -------- analyse data ---------
+  ne.nocv.re:
+    command: readRDS('model_output/ne.nocv.re.rds')
 
-  job_list:
-    command: create_jobs(models = I(data.frame(model_type = c("w"),
-                                               fixed_effects = c(TRUE),
-                                               random_effects = c(FALSE))),
-                         data = decay_data,
-                         cv_cluster = I("species_code"),
-                         fixed_effects_list = I(c("N")))
+  w.nocv.re:
+    command: readRDS('model_output/w.nocv.re.rds')
 
-  model_list:
-    command: run_models(job_list,
-                        decay_data,
-                        initial_mass = I("mInit"),
-                        removal_mass = I("mRem"),
-                        time = I("t"),
-                        group = I("species_code"),
-                        n_cores = I(20))
+  traits.cv.nore500:
+    command: readRDS('model_output/traits.cv.nore500.RDS')
+
+  traits.cv.nore1000:
+    command: readRDS('model_output/traits.cv.nore1000.RDS')
+
+  traits.cv.nore1500:
+    command: readRDS('model_output/traits.cv.nore1500.RDS')
+
+  traits.cv.nore2000:
+    command: readRDS('model_output/traits.cv.nore2000.RDS')
+
+  traits.cv.nore2500:
+    command: readRDS('model_output/traits.cv.nore2500.RDS')
+
+  traits.cv.nore3000:
+    command: readRDS('model_output/traits.cv.nore3000.RDS')
+
+  traits.cv.nore3683:
+    command: readRDS('model_output/traits.cv.nore3683.RDS')
+
+  # ----- combine data ------
+  
+  ne_sim_df:
+    command: prep_sim_df(ne.nocv.re)
+
+  w_sim_df:
+    command: prep_sim_df(w.nocv.re)
+
+  param_estimates:
+    command: param_output(decay, ne.nocv.re, w.nocv.re)
+
+  a_post:
+    command: prep_post(w.nocv.re, decay, I('alpha'))
+
+  b_post:
+    command: prep_post(w.nocv.re, decay, I('beta'))
+
+  k_post:
+    command: prep_post(ne.nocv.re, decay, I('k'))
 
   # -------- figures -------------
 
-  figs/boxplot.png:
-    plot:
-      width: 1200
-      height: 950
-    command: box_plot(mean_traits)
-
-  figs/raw_pca.png:
+  figs/raw_simulate_weibull.png:
     plot:
       width: 1000
-      height: 950
-    command: pca(pca_output, logged_trait_matrix, species)
+      height: 980
+    command: simulate_weibull()
 
-  figs/pairplot.png:
+  figs/mod_four.png:
+    plot:
+      width: 1000
+      height: 980
+    command: mod_plot_four(decay, w_sim_df, ne_sim_df, param_estimates,
+              species_names = c('C', 'BB', 'CC', 'L'))
+
+  figs/mods_ar.png:
     plot:
       width: 1500
-      height: 1500
-    command: pair_plot(logged_trait_matrix)
+      height: 980
+    command: mod_plot_ar(decay, w_sim_df, ne_sim_df, subfig = I('a'))
 
-  figs/var_alpha.png:
+  figs/mods_at.png:
     plot:
-      width: 400
-      height: 350
-    command: simulate_weibull(constant_param = I('beta'),
-                   constant_value = 1.3,
-                   low = 0.3,
-                   high = 1.2)
+      width: 1500
+      height: 1940
+    command: mod_plot_at(decay, w_sim_df, ne_sim_df, subfig = I('b'))
 
-  figs/var_beta.png:
+  figs/mods_tda.png:
     plot:
-      width: 400
-      height: 350
-    command: simulate_weibull(constant_param = I('alpha'),
-                 constant_value = 1,
-                 low = 0.3,
-                 high = 2.5)
+      width: 1500
+      height: 1460
+    command: mod_plot_tda(decay, w_sim_df, ne_sim_df, subfig = I('c'))
+
+  figs/mods_tdr.png:
+    plot:
+      width: 1500
+      height: 980
+    command: mod_plot_tdr(decay, w_sim_df, ne_sim_df, subfig = I('d'))
+
+  figs/a_plot.png:
+    plot:
+      width: 1000
+      height: 980
+    command: a_param_plot(a_post)
+    
+  figs/ab_cor_plot.png:
+    plot:
+      width: 1000
+      height: 980
+    command: kb_cor(a_post, b_post)
+
+  figs/kb_plot.png:
+    plot:
+      width: 1000
+      height: 980
+    command: kb_param_plot(k_post, b_post)
+
+  figs/kb_cor_plot.png:
+    plot:
+      width: 1000
+      height: 980
+    command: kb_cor(k_post, b_post)
+
 
   # --------- tables ---------
-  figs/traits_table.tex:
-    command: traits_table(combined_traits, target_name)
-
-  figs/pca_loadings.tex:
-    command: pca_loadings(pca_output, target_name)
-
-  figs/decay_data.csv:
-    command: write.csv(decay_data, target_name)
-
-  figs/model_list.rds:
-    command: saveRDS(model_list, target_name)
-
-  figs/deviance.tex:
-    command: deviance_table(model_list, target_name)
+  
+  figs/species_parameters.tex:
+    command: param_table(param_estimates, target_name)
 
   # ------ report ---------
   manuscript.tex:
     depends:
+      - species
       - combined_traits
       - mean_traits
-      - decay_data
-      - logged_trait_matrix
-      - pca_output
-      - job_list
-      - model_list
+      - decay
+      - ne.cv.nore
+      - w.cv.nore
+      - ne.nocv.re
+      - w.nocv.re
+      - ne_sim_df
+      - w_sim_df
+      - param_estimates
+      - a_post
+      - b_post
+      - k_post
     knitr: TRUE
 
   manuscript.pdf:
-    command: texi2pdf("manuscript.tex", clean = TRUE)
+    command: pdflatex("manuscript.tex", clean = TRUE)
     depends:
       - figures
       - tables
