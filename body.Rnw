@@ -1,0 +1,201 @@
+\section{Introduction}
+
+Small proportional changes in growth and decomposition rates can have far-reaching effects on atmospheric $CO_2$ \citep{prentice2001}. Complex processes regulate decomposition in diverse plant communities, including abiotic and biotic attributes of the ecosystem \citep{cornwell2008}. Site-level studies, as well as global syntheses, highlight the importance of litter quality and chemistry on mass loss rates across diverse biomes worldwide \citep{zhang2008}. Appropriate models are required to quantify decomposition rates and test the relative predictive abilities of traits on rates of decomposition \citep{dedeyn2008}.
+
+Observation of mass loss indicates that mass does not decay at a linear rate \citep{olson1963} but rather declines quickly initially and then slows. Although there are many different conceptualisations of the decomposition process, this basic concave shape is most commonly approximated by first order decay using the negative exponential model \citetext{Eq.~\ref{eqn:neg_exponential}; \citealp{olson1963}}.
+\begin{gather}\label{eqn:neg_exponential}
+	M_t = M_0e^{-\kappa t}
+\end{gather}
+where $M_t$ is mass remaining at time $t$, $M_0$ is initial mass of litter sample, and $\kappa$ is rate. The negative exponential model assumes that the change in rate of decay is constant over time ($1/\kappa$), such that each molecule has equal chance of decaying at any point in time and the half life is a constant value ($t_{50} = - \frac{ln(2)}{k}$). Desite its widespread use, the negative exponential model has been criticised because of this assumption that the litter material is homogeneous \citetext{when it is demonstrably not so \citealp{wieder1982,cheshire1988,prescott2010,adair2010}}. Even for litter belonging to a single species is comprised of a variety of structures (roots, stems, leaves), which are not homogeneous in terms of chemical composition and therefore decompose at different rates at different phases of decay \citep{freschet2012}.
+
+A range of complex, multiple parameter decomposition models exist that capture biological mechanisms of decay better than the negative exponential model because they are more flexible \citep{bruun2004,feng2009,manzoni2012}. One such model is the two-parameter Weibull residence time model (Eq.~\ref{eqn:weibull}). It was originally described by \citet{frechet1927} and later developed by \citet{weibull1951}, it performed best out of a suite of multi-parameter decay models based on $AIC_c$ and BIC model selection approaches \citep{cornwell2014}. It is defined as follows:
+\begin{gather}\label{eqn:weibull}
+	M_t = M_0e^{-\frac{t}{\beta}^\alpha}
+\end{gather}
+where $\alpha$ modifies the shape of the decay curve and $\beta$ is a rate parameter determining the scale of decay over time. The Weibull residence time model is equivalent to the negative exponential model when $\alpha = 1$, such that $\beta = 1/\kappa$. When $\alpha$\textless 1, the decomposition rate decreases over time, and when $\alpha$\textgreater 1, the decomposition rate increases over time. This is useful for approximating lag phases such as one might expect to find in wood decomposition. Although still a phenomenological model, as it does not model the underlying biological mechanism of decay, it differs from the negative exponential model in that it allows for the rate of decay to change over time \citetext{derivation in \citealp{cornwell2014}}. This means that rather than modelling decomposition on a single dimension with respect to the rate of decay ($\kappa$), one can explore variation in decomposition in two dimensions. The four combinations of high and low $\alpha$ and $\beta$ allow us to distinguish between fast overall decay that increases or decreases with time, and slow overall decay that increases or decreases with time.
+
+Empirical work has concluded that a range of traits correlate with overall decomposition rate:
+\begin{enumerate*}[label={\roman*})]
+  \item{carbon, nitrogen, or carbon to nitrogen ratio \citep{britson2016,cornelissen2001,cornwell2008,cornwell2014,freschet2012}},
+  \item{lignin or lignin to nitrogen ratio \citep{britson2016,cornwell2008,freschet2012,freschet2012a,jackson2013,zhang2008}}
+  \item{specific leaf area or leaf mass area \citep{cornelissen1999,cornwell2008}},
+  \item{and litter cellulose \citep{britson2016}}
+\end{enumerate*}, among others. With the exception of \citet{cornwell2014}, who found that nitrogen predicted Weibull $\alpha$, these studies predicted trait effects on the negative exponential parameter, $\kappa$. In previous work comparing functional trait values for a range of wetland plant species, we found that litter high in carbon content was not necessarily high in complex carbon. Species tended to invest primarily in either simple carbon, such as hemicelluloses and cellulose, or in chemically complex lignin. This separation by investment strategy was not, however, necessarily parallel to the division between nutrient-rich and nutrient-poor tissue (Windecker et al., unpublished data). The two-parameter Weibull model provides us with the opportunity to test how these two investment strategies affect decomposition. We expect that nutrient-rich labile tissue, regardless of chemical complexity, would have low $\alpha$, or initially fast then declining decay rates. We expect that litter high in complex carbon such as lignin would have higher $\beta$, or low rates of overall decay.
+
+In this study, we collected mass loss data for 29 wetland species using a nine-month mesocosm decomposition experiment. We used these data to (i) compare the single-pool negative exponential model with the two-parameter Weibull residence time model and (ii) estimate the power of traits to explain species-level variation in decomposition shape and scale (Weibull $\alpha$ and $\beta$). This exercise was computationally expensive, so to reduce the number of models for comparison we assessed this aim in stages. We first compared the two model forms with no trait effects, then examined species-level estimates for $\alpha$ and $\beta$ parameters, and finally compared 84 trait models. We evaluate the models by comparing the out-of-sample predictive performance of each model on data for a held-out species.
+
+\section{Methods}
+
+\subsection*{Litter collection}
+
+In late austral summer 2016, we collected plant litter derived from photosynthetic tissue of 29 wetland plant species. Since the study was designed to examine traits related to litter recalcitrance, we measured aboveground plant biomass that would contribute to litter. For graminoids, litter included the culm and leaves, but not the inflorescence. For forbs and ferns, litter included the entire body of the plant excluding the flower. For tree species, leaves and petioles, leaflets and rachis, but not seeds, flowers, or stems were included. For the purposes of examining litter quality, empirical work has found that traits are reasonably coordinated among different plant parts \citep[for example, leaves and stem,][]{reich2014,jackson2013}. In addition, similar decay rates have been observed for leaf and litter tissue \citep{cornwell2008}.
+
+We collected species at three previously surveyed sites in Victoria, Australia (sites within 60 km of -37.455, 144.985): one riverbank, one floodplain wetland, and one shallow groundwater- and surfacewater-fed herbland. The target species represented a range of functional groups classified according to the \citet{brock1997} scheme. Functional groups included: terrestrial dry species (n = 5), terrestrial damp species (n = 9), amphibious fluctuation-tolerators (n = 10), and amphibious fluctuation-responders (n = 5). Litter was placed in moist plastic bags and stored in dark coolers until delivered to the lab, and then moved to a dark, refrigerated room.
+
+\subsection*{Traits}
+
+We collected ten robust individuals of each species for trait measurement. These individuals were located at least 5 m apart along a linear transect at a single site \citep{perez-harguindeguy2013} and were collected at the end of the growing season to avoid the effects of seasonal variation. We weighed each fresh sample within 24 hours of collection. For each sample, we measured litter area mass, dry matter content, nitrogen, total carbon, and proportion of hemicellulose, cellulose, and lignin per descriptions in Chapter 3.
+
+\subsection*{Litterbag and mesocosm preparation}
+
+We dried the fresh litter at 60 $^{\circ}$C for 72 hours. Each species had a total of 18 litterbags spread across three replicate tubs. Each tub contained six litterbags, one of each which was removed successively at each sampling time (Fig.~\ref{Fig:exp_design}). We used 17 x 11.5 cm white, mesh, drawstring bags with aluminium labels, filled with approximately 4 g of dried litter. Individual leaves and compound leaves were placed directly into the bags, however stems of graminoid species were cut down to roughly 10 cm lengths to fit inside the litterbags.
+
+\begin{figure}[!ht]
+	\centering
+	\scalebox{0.9}
+	{\includegraphics[width=\textwidth]{chapters/Chapter5_decomp/modified-figs/exp_design.png}}
+	\caption{Mesocosm decomposition experimental design. Litter bags were removed at two, four, and six weeks, then three, six, and nine months. Each species had three replicate tubs.}
+	\label{Fig:exp_design}
+\end{figure}
+
+Blue plastic tubs (432 x 324 x 127 mm; 13 L capacity) were used for the bioassay because we expected that the dark colour would limit algal photosynthesis and growth. Tubs were filled with 4200 mL of a 2:1 ratio of organic soil and washed sand. In addition, 90 mL of ground, homogenised soil collected from a local wetland (-37.889, 144.991) was added to the sand/soil mixture in each tub to inoculate them with local biota. The tubs were set up in 12-tub blocks in a polytunnel (University of Melbourne, Burnley campus). This polytunnel allowed in sunlight, but eliminated the effects of rain, external leaf litter, bird droppings, and any potential interference from wildlife on campus including feral foxes and reptiles (Fig.~\ref{Fig:polytunnel}). The tunnel also buffered the ambient temperature slightly. Each species' three replicate tubs were placed randomly across the tunnel, and were re-randomised two additional times during the nine-month bioassay (after three and six months), to eliminate any effect of micro-climatic conditions in the polytunnel.
+
+On the first day of the experiment, we placed the litterbags flat on the soil and filled the tubs with water. Overhead drip taps topped up water levels in the tubs once a week to make up for any evaporation. We conducted this experiment in flooded conditions in order to approximate the wet conditions one might expect in a wetland and to speed up decay. One litterbag was removed from each tub at two weeks, four weeks, six weeks, three months, six months, and lastly, at the end of the trial, at nine months. Bags were removed and placed directly into the oven at 60 $^{\circ}$C for 72 hours and then weighed.
+
+\begin{figure}[ht]
+	\centering
+	{\includegraphics[width=0.8\textwidth]{chapters/Chapter5_decomp/modified-figs/polytunnel.png}}
+	\caption{Mesocosm decomposition experiment setup. Tubs contained six litterbags for a single species that were removed one each for each sampling time. Three tubs for each species were randomly placed within the tunnel and then re-randomised twice during the duration of the study.}
+	\label{Fig:polytunnel}
+\end{figure}
+
+\subsection*{Overall model structure}
+
+We fitted two non-linear decomposition models to mass loss data from each species. In all models, we modelled the log mass remaining for litterbag $i$ and species $j$ as a normal distribution with mean $\mu_{ij}$ and variance $\sigma^2$ (Eq.~\ref{Eqn:log_mt}). We assigned a positive-truncated normal prior to $\sigma$ (Eq. ~\ref{Eqn:sigma}).
+\begin{gather}
+ln(M_{tij}) \sim N(\mu_{ij}, \sigma^2)\label{Eqn:log_mt}\\
+\sigma \sim N^+(0, 2)\label{Eqn:sigma}
+\end{gather}
+
+$\mu_{ij}$ is described by one of two functional forms, the negative exponential (Eq.~\ref{eqn:ne_null}) or the Weibull residence time model (Eq.~\ref{eqn:w_null}), as follows:
+\begin{gather}
+\mu_{ij} = ln(M_{0ij}) - \kappa t_{ij}\label{eqn:ne_null}\\
+\mu_{ij} = ln(M_{0ij}) - \frac{t_{ij}}{\beta}^{\alpha}\label{eqn:w_null}
+\end{gather}
+where $M_{0ij}$ is initial mass of litterbag $i$ and species $j$, and time $t_{ij}$ is expressed in years to ensure $\alpha$ and $\beta$ were on the same scale. When $\alpha = 1$, the two models are equivalent because $\kappa = 1/\beta$.
+
+\subsection*{Model variations}
+
+We use four variations of the overall model structure in this study. The first model variation is the `null model' for both the negative exponential and the Weibull residence time models. The remaining models use only the Weibull model form. The second model variation is the `null hierarchical model', which models both parameters as linear functions of a global intercept and a species-level random intercept. The third model variation is the `trait model', which details the general structure for the 84 different trait model combinations. This model variation specifies both parameters as linear functions of a global intercept and the sum of trait-level fixed effects. Finally, the `trait hierarchical model' variation adds a species-level random intercept effect to the global parameter and trait-level effects in the linear models for each parameter. These four models are explained in detail below. We use minimally informative Bayesian priors. Where we refer to $\alpha$ the structure is the same for the Weibull $\beta$ parameter.
+
+\subsubsection*{Null model}
+
+We use models for $\mu_{ij}$ as specified in Eqn.~\ref{eqn:ne_null}\textendash~\ref{eqn:w_null}. The prior distribution for $\alpha$ is as follows:
+\begin{gather}
+\alpha \sim N(0, 2)\label{eqn:alpha_null}
+\end{gather}
+
+\subsubsection*{Null hierarchical model}
+
+We model $\mu_{ij}$ as follows, where $\alpha_j$ and $\beta_j$ for each species $j$ = 1, ..., 29, are given by the sum of the global intercept (prior distribution for $\alpha$ is as in Eqn.~\ref{eqn:alpha_null}) and species-level random intercept effects $\epsilon_j$:
+\begin{gather}
+\mu_{ij} = ln(M_{0ij}) - \frac{t_{ij}}{\beta_j}^{\alpha_j}\label{eqn:hier_mu}\\
+\alpha_j = \alpha + \epsilon_j\label{eqn:alpha_j_hier}\\
+\epsilon_j \sim N(0, \rho^2)\label{eqn:epsilon_j}\\
+\rho \sim N^+(0, 2)\label{eqn:rho}
+\end{gather}
+
+\subsubsection*{Trait model}
+
+We modelled $\mu_{ij}$ as Eqn.~\ref{eqn:hier_mu}, where $\beta_j$ and $\alpha_j$ are modelled by a linear function of the global intercept (described by Eqn.~\ref{eqn:alpha_null}) and the sum across $K$ traits of the product of species traits ($X_{kj}$) and a vector of coefficients ($B_{kj}$):
+\begin{gather}
+\alpha_j = \alpha + \sum_{k=1}^{K} X_{kj}B_{kj}\label{eqn:alpha_j_trt}\\
+B_{kj} \sim N(0,2)\label{eqn:coefs}
+\end{gather}
+
+\subsubsection*{Trait hierarchical model}
+
+We modelled $\mu_{ij}$ as Eqn.~\ref{eqn:hier_mu}, where $\beta_j$ and $\alpha_j$ are modelled by a linear function of the global intercept (described by Eqn.~\ref{eqn:alpha_null}), the sum across $K$ traits of the product of species traits ($X_{kj}$) and coefficients ($B_{kj}$), and a species-level random intercept effect $\epsilon_j$:
+\begin{gather}
+\alpha_j = \alpha + \sum_{k=1}^{K} X_{kj}B_{kj} + \epsilon_j\label{eqn:alpha_j_trt_hier}
+\end{gather}
+
+Trait variables were log-transformed, centered, and scaled by subtracting their means and dividing by twice the standard deviation. We decided for both computational and inferential reasons, that with only 29 species we could have a maximum of two traits in any given model. We therefore compared every combination of a single trait on either $\alpha$ or $\beta$, a single trait on both $\alpha$ and $\beta$, and all combinations of two traits on one parameter. This added up to 84 unique models.
+
+\subsection*{Model evaluation}
+
+We compared the performance of the models using `k-fold' cross-validation. This was achieved by splitting the dataset into a training dataset (including all but one species) and a test dataset (the held-out species). Each model was run 29 times, giving each species the opportunity to be the `test' data. Species were used as the cross-validation grouping because we were interested in the ability of the models to predict to an entirely new species rather than to individual litterbag estimates \citetext{as in \citealp{thomas2019}}. Model evaluation was conducted by calculating the average deviance of each model (across all folds).
+\begin{gather}
+  q_j = \prod_{i=1}^{n} N(ln(M_{ij}) | \mu_{ij}, \sigma^2)\label{eqn:likelihood}\\
+  D = -2 \sum_{j=1}^{m} ln(q_j)\label{eqn:deviance}
+\end{gather}
+
+where $q_j$ is the likelihood of a model for each species (the probability of observing the data given the model). Deviance $D$ of a model is -2 times the sum across $m$ observations $j$ of the log likelihood of the data for each species. We have a large number of posterior samples of the parameters because we were fitting the models using Markov chain Monte Carlo (MCMC) sampling. This therefore translates into a large number of posterior samples for the deviance.
+
+\subsection*{Data analysis}
+
+Our analyses were conducted within the statistical computing environment, R \citep{R}. All models were computed using the Bayesian statistical software, Stan \citep{carpenter2016} using the R package RStan \citep{rstan}. Stan models created for this work are contained in a R package available on Github
+(https://github.com/smwindecker/decaymod/).
+
+\section{Results}
+
+\subsection*{Model form}
+
+The null Weibull model outperformed the null negative exponential model across all data and for all species as determined by its lower out-of-sample deviance (Weibull deviance = \Sexpr{round(dev(w_cv_nore), 2)}, negative exponential deviance = \Sexpr{round(dev(ne_cv_nore), 2)}). The difference between the deviance of the two models is not very large, likely because a simple model is not sufficient for out-of-sample prediction given the high variation of decomposition rates among species.
+
+Posterior distributions of species-level Weibull $\alpha$ estimates from the null hierarchical model provide additional evidence for the strength of the Weibull model. When $\alpha$ = 1, the two model forms are equivalent. However, we find that roughly half of our species have posterior distributions for $\alpha$ that do not intersect 1 (Fig.~\ref{Fig:a_plot}, Table~\ref{apx:sp_params}). All species except \textit{Carex appressa} had a mean predicted $\alpha$ less than one and the overall mean $\alpha$ was around 0.6, indicating on average these species decay faster initially than would be predicted by the negative exponential model, and that the rate of decay slows down over time.
+
+\begin{figure}[!ht]
+	\centering
+	\scalebox{0.9}
+	{\includegraphics[width=\textwidth]{chapters/Chapter5_decomp/figs/a_plot.png}}
+	\caption{Posterior distributions and 95\% credible intervals for parameter estimates of species-level $\alpha$ from the null hierarchical model. Species in descending order by median $\alpha$ estimate. Sigma indicates the samples drawn from the posterior for the hyperparameter of species-level standard deviation.}
+	\label{Fig:a_plot}
+\end{figure}
+
+There is thus overall support for modelling the decomposition of these wetland plant species with the Weibull model. However, there are still some instances where one could use the negative exponential to save estimating an extra parameter, such as for species with $\alpha$ close to 1 (Fig~\ref{Fig:mod_four}a). Even for species with $\alpha$\textless 1, the overall shape of the decay curve can be quite similar to the negative exponential, if the species decays very little (high $\beta$), such as for \textit{Melaleuca ericifolia} (Fig.~\ref{Fig:mod_four}b).
+
+Variation in the $\beta$ parameter did not correlate with variation in $\alpha$ (r = \Sexpr{round(stats::cor(a_post, b_post), 2)}; Fig.~\ref{apx:ab_cor}), suggesting the same species that decay fast initially do not necessarily decay fast overall. We therefore have evidence of species occupying both dimensions of variation in $\alpha$ and $\beta$: slow early stage decay with fast and slow overall decay (Fig.~\ref{Fig:mod_four}a\textendash b) and early stage fast decay with high and low overall decay (Fig.~\ref{Fig:mod_four}c\textendash d). All species' decay curves can be found in Fig.~\ref{apx:mods_ar}\textemdash~\ref{apx:mods_tdr}.
+
+\begin{figure}[!ht]
+	\centering
+	{\includegraphics[width=0.8\textwidth]{chapters/Chapter5_decomp/figs/mod_four.png}}
+	\caption{Four species' decomposition data and predictions by the negative exponential and Weibull residence time models.}
+	\label{Fig:mod_four}
+\end{figure}
+
+\subsection*{Trait effects}
+
+Variation between species in $\beta$ was greater and less certain than in $\alpha$ (Fig.~\ref{Fig:sp_sigma}). Models with traits on $\beta$ performed the best at predicting out-of-sample species (Table~\ref{Tab:deviance}). Despite variation in species-level $\alpha$ (Fig.~\ref{Fig:sp_sigma}), none of the top ten performing trait models (ranked by out-of-sample deviance) included traits on $\alpha$ (Table~\ref{apx:deviance}). This suggests that despite deviation in general from the negative exponential model ($\alpha \neq 1$), traits did not necessarily predict the variation among species-level $\alpha$.
+
+The median out-of-sample deviance of the top several models did not differ greatly, but the range of each model's deviance values varied widely, indicating that the predictive ability of any model for a given species was highly variable. This may reflect, for example, an instance where the `test' species is at the far end of the trait spectrum, and therefore the model was unprepared for an extreme level of the variable. For this reason, we focus here on the collection of top models together rather than a single `best' model.
+
+\begin{table}[!ht]
+  \centering
+	\caption{Deviance ranking with 95\% credible intervals of top five Weibull models with trait fixed effects.}
+	\label{Tab:deviance}
+	\begin{tabular}{l l r}
+	\toprule
+		Formula $\alpha$ & Formula $\beta$ & Median deviance \\
+		\midrule
+		\input{chapters/Chapter5_decomp/figs/short_deviance_median.tex}
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+Most of the top models have both nitrogen and a measure of carbon (either total carbon, hemicellulose, lignin or dry matter content) in their linear function for $\beta$. There is a strong negative correlation between $\beta$ and $\kappa$ (r = \Sexpr{round(stats::cor(a_post, k_post), 2)}, p \textless 0.001; Figs~\ref{apx:kb_plot},~\ref{apx:kb_cor}). The addition of traits reduces the hyperparameter of sigma for species-level $\beta$ (from \Sexpr{round(sigma_sp_beta(w_nocv_re), 2)} to \Sexpr{round(sigma_sp_beta(best_re_mod), 2)}, a \Sexpr{round((sigma_sp_beta(w_nocv_re) - sigma_sp_beta(best_re_mod)) / sigma_sp_beta(w_nocv_re), 2)}\% decrease), as expected, but a large amount of unexplained variation remains (Fig.~\ref{Fig:sp_sigma}).
+
+\begin{figure}[!ht]
+	\centering
+	{\includegraphics[width=0.7\textwidth]{chapters/Chapter5_decomp/figs/sigma_sp.png}}
+	\caption{Density plots of posterior samples from the hyperdistribution of species-level sigma on both $\alpha$ and $\beta$ for the null Weibull model and the lowest deviance Weibull trait model (N = 4000, bandwidth = 0.01001).}
+	\label{Fig:sp_sigma}
+\end{figure}
+
+\section{Discussion}
+
+The Bayesian framework and cross-validation used in this study revealed (i) the most predictive decomposition model was the Weibull residence time model because it captured changing rate of decay over time, (ii) despite variation in the shape ($\alpha$) of decay among species, the most predictive model only included trait effects on the scale of decay, (iii) both nitrogen and some measure of carbon trait predicted the scale of decay, and finally, (iv) the overall shape ($\alpha$) and scale ($\beta$) of decay varied widely between species and the most predictive trait model still explained only a fraction of this variation.
+
+The Weibull residence time model is a useful underlying model for decomposition for our species because it allows us to model not only the overall scale of decay, but also the shape of that decay. In general, we found that the decay rate of our species slowed over time, which could indicate the existence of a fraction of material more resistant to decay \citep{valiela1984}. Variation in the Weibull shape parameter allows us to distinguish between decomposition trajectories that decay (i) relatively fast initially but slow over time ($\alpha$\textless 1), (ii) relatively consistently and are well approximated by the negative exponential model ($\alpha \sim 1$), and (iii) slowly initially but speed up over time (a lag phase; $\alpha$\textgreater 1). Plant litter can display any of these three rates of change in combination with high or low overall scale of decay ($\beta$). The Weibull can also be reparameterised to derive two important metrics that depend on both of these parameters: time to 50\% mass and mean residence time, or average time a particle remains in the sample before decomposing \citep{cornwell2014}. Decomposition as a function of shape and scale is important for modelling litter, which is by and large heterogeneous \citep{jackson2013}. Partitioning overall decomposition by shape and scale is not only more appropriate given our empirical results, but theoretically useful because it allows us to test ecological theory about which traits of a plant community impact each aspect of decay.
+
+We found high species-level variation in both shape and overall scale of decay. However, traits best predicted new species when used only to model scale. This matches previous work that documents the influence of traits on negative exponential decomposition rate $\kappa$ \citep{britson2016,prescott2010,cornwell2008,enriquez1993}, which is highly correlated to scale. We expected nutrient traits to affect decay via the shape parameter, as found in \citet{cornwell2014}, but none of the most predictive models included trait effects on shape. One explanation could be that despite the diversity of the species included in our study, we were still only measuring aboveground, non-woody litter materials, which excluded plant components such as twigs, rhizomes, and roots. Perhaps variation in Weibull shape would be more appropriately modelled at that scale \citep{jackson2013,silva2011,wardle1998}. The overall intercept effect for scale in the top performing trait models was still less than one. Future work to successfully use this model will need to test what mean Weibull scale value is appropriate for the plant material being modelled.
+
+The models most able to predict to new species included both nitrogen and some measure of carbon on the scale parameter. Litter nitrogen can speed up decomposition by making more carbon bioavailable to decomposers \citep{cornelissen1999,santiago2007,hobbie2008}. Chemically recalcitrant litter requires more energy to degrade \citep{adler2014,lawrence2013}, and so lignins, tannins, and polyphenols resist breakdown and reside longer in the soil \citep{guenet2010}. Although lignin is the most chemically complex carbon \citep{derkacheva2008}, we found total carbon and hemicellulose also performed well at predicting out-of-sample species. Nevertheless, the difference in out-of-sample deviance between these top models is small, so we should not place too much emphasis on identifying a single `best' trait model.
+
+The trait-based portion of this study had two phases: (i) cross-validation by species to rank predictive ability of trait models and (ii) hierarchical implementation of the best trait model to examine variance partitioning. Species-level cross-validation is a relatively stringent metric. This is because it asks how well a model predicts not only a species it has never seen, but also one whose trait values might well exist outside of those on which it has been trained \citep{gelman2006,hooten2015,macnally2000}. We therefore do not expect any of these models to perform perfectly to this standard. However, this high bar is important for prediction \citep{falster2018,macnally2018}. It tells us not only which traits explain observed data, but how useful those traits are for predicting decomposition in a global context. For example, how well a model might extrapolate community-weighted mean trait values of `best' traits to generalise their impacts on ecosystem services. Hierarchical Bayesian modelling of our trait-based models is important for inference, because by adding species-level random intercepts to our parameters we can partition inter- and intra-specific variance \citep{thomas2019,pollock2012}. We can conclude that substantial species-level variance is not explained by our `best' trait models \citetext{as in \citealp{camac2018}}.
+
+Understanding how traits predict decomposition will improve our ability to generalise about the decomposability of broader communities. In this study, we (i) provide empirical evidence for use of the Weibull residence time model, (ii) provide additional evidence that both types of litter recalcitrance traits (nutrients as well as chemical complexity) are important for predicting decay, and (iii) illustrate with hierarchical modelling the unexplained variance in using trait-based models for prediction purposes.
+
+\section{Acknowledgements}
+
+The authors would like to thank volunteers Abbey Kinnish, Kelsey Johnson, Francesca Dina, Madeline Brenker, and Urtzi Enriquez Urzelai for assistance in the field and The University of Melbourne Department of Chemical and Biomolecular Engineering for training and access to the TGA-FTIR and LECO Elemental Analyser. Vegetation collection was conducted under Victorian Department of Environment, Land, Water and Planning Permit No 10007429. We thank the Australian Research Council Centre of Excellence for Environmental Decisions, the Holsworth Wildlife Research Endowment \& the Ecological Society of Australia, and the Melbourne International Research Scholarship and Melbourne International Fee Remission Scholarship for support.

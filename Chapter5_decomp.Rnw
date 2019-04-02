@@ -1,0 +1,12 @@
+\chapter{Understanding variation in litter decomposition in a multispecies mesocosm}\label{sec:decomp}
+\newpage
+
+\begin{localsize}{11}
+\section*{\centering Abstract}
+
+The quality of plant litter (volume and decomposability) is a key predictor of decomposition rates worldwide. Key functional traits affect decomposition pathways among species in predictable ways and can therefore be used as easy-to-measure metrics for litter characteristics. Although the negative exponential model has traditionally been used to predict decay, it assumes constant rate of decay over time, making it problematic for estimating decay in heterogeneous litter. In contrast, by modelling decomposition with the two-parameter Weibull model, we can test ecological theory about what traits of a plant community impact the total decay and the change in rate of decay over time. We conduct a mesocosm experiment to examine decomposition trajectories for 29 wetland plant species, for which we also measure seven traits: litter area per mass (LAM), dry matter content (DMC), litter nitrogen (N), litter total carbon (C), proportion of hemicellulose (HC), cellulose (CL), and lignin (LG). We use a series of cross-validated, non-linear Bayesian models to test (i) whether these species change their decay rate over time (thereby indicating the utility of the Weibull model framework), (ii) which of our measured traits affect decay and in what way, and (iii) how successful these models are at predicting the decomposition rate of new species. We found that decomposition rates decrease over time, directly contradicting the assumption underlying the single-pool negative exponential model. Trait models which include both nitrogen and carbon characteristics ranked among the best. However differences among trait models are marginal, suggesting that traits alone do not produce a single `best' model.
+
+\end{localsize}
+
+\newpage
+\Sexpr{knitr::knit_child('body.Rnw')}
