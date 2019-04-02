@@ -2,14 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-/data
-/data-raw
-besjournals.bst
-manuscript.tex
-manuscript.pdf
-manuscript.Rnw
+.DS_Store
 /.remake
-/figs
-/manuscript
-/modified-figs
-/analysis
+decay_data.csv
