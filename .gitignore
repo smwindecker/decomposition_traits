@@ -1,0 +1,11 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.tex
+*.pdf
+/.remake
+/figs
+.DS_Store
+*.svg
+comments/
