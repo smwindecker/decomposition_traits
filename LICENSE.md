@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright (c) 2019 Saras Windecker, Stacey Trevathan-Tackett, Nick Golding, Jane Catford, Peter Macreadie, & Peter Vesk
+Copyright (c) 2021 Saras Windecker, Stacey Trevathan-Tackett, Paula Sanchez, James Camac, Nick Golding, Jane Catford, Peter Macreadie, & Peter Vesk
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

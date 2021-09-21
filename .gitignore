@@ -2,10 +2,12 @@
 .Rhistory
 .RData
 .Ruserdata
+.Rapp.history
 *.tex
 *.pdf
 /.remake
-/figs
+figs/
 .DS_Store
 *.svg
 comments/
+img/
