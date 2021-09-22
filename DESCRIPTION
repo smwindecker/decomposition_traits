@@ -30,18 +30,30 @@ Depends:
     ade4,
     adephylo,
     ape,
+    bayesplot,
+    decaymod,
     dplyr,
+    egg,
+    ggplot2,
+    grDevices,
+    knitr,
     magrittr,
+    memisc,
     minpack.lm,
     mixchar,
     phytools,
+    plyr,
     R.utils,
+    reshape2,
+    rstan,
+    stats,
     stringr,
     tidyr,
+    tinytex,
     vegan,
-    xtable, 
-    remake
+    xtable
 Remotes:
-    richfitz/remake
+    smwindecker/decaymod,
+    smwindecker/mixchar
 Encoding: UTF-8
 LazyData: true
