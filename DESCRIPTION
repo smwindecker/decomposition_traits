@@ -1,5 +1,5 @@
 Type: Compendium
-Package: biomass.carbon
+Package: decomposition_traits
 Title: Decoupling plant economics traits and biomass carbon composition in wetland litter
 Version: 1.0.0
 Authors@R: c(
